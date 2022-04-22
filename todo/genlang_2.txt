@@ -1,0 +1,23 @@
+
+Genlang 2.0 Concept
+* Genlang should enable some random melodies!
+* Language should free up one kind of brackets
+  to use for arguments lists
+* More control over flow of par/seq melodies
+* Some events should change some wave parameters.
+* Some events should change parameters of other events.
+
+_ Genlang 2.0 Completion
+	/ Change [],() to {},<>
+	/ Refactor eggs (Seq,Par,Forever,Repeat) into Forker
+	/ End Pipe (which part of Par has length)
+	/ Death pipe, to kill parent when self conks out (for Par)
+	/ Rand egg
+	_ Var assignment events (name := egg)
+	_ Var-referencing events ($name)
+	_ Real-Var assignment events (name := double)
+	_ Wavelang var-references (modified by eggs)
+	_ Melody-inject operator! work with random on each sides
+	_ Example random song!
+	_ Cleanup
+	

@@ -1,0 +1,91 @@
+{{{
+
+Defaults = {
+    waveSquare = phase [0,1 -- 0,-1 -- 0.5,-1 -- 0.5,1 -- 1,1];
+    waveSquareIsh = phase [0,1 -- 
+        waveSquareIshDelta,-1 -- 0.5,-1 -- 
+        0.5+waveSquareIshDelta,1 -- 1,1];
+    waveTri = phase [0,1 -- 0.5,-1 -- 1,1];
+    waveSmooth = phase [0,1 ~~ 0.5,-1 -- 1,1];
+    waveTing = phase [0,1 ~~ 
+    	0.25,-0.5 ~~ 0.5,0.5 ~~
+    	0.75,-1 ~~ 1,1];
+    wave2Peaks = phase [0,1 ~~ wave2PeaksDelta,-1 ~~ 0.5,1 ~~ (1-wave2PeaksDelta),-1 ~~ 1,1];
+    waveWhat = phase [0,1 ~~ (0.5-waveWhatDelta),0 ~~ 0.5,0.5 ~~ (0.5+waveWhatDelta),-1 ~~ 1,1];
+    waveNes = phase [0,0 -- 0.25,1 -- 0.75,-1 -- 0.75,0 -- 1,1];
+    waveNes2 = phase [0,0 -- 0.5,1 -- 0.5,0 -- 1,-1];
+
+    waveSquareIshDelta = 0.1;
+    wave2PeaksDelta = 0.2;
+    waveWhatDelta = 0.2;
+        
+    ampDing = time [0,0 -- 0.01,1 -- 0.5,0.7 -- 1,0];
+    ampDing2 = time [0,0 -- 0.005,1 -- 0.2,0.6 -- 0.4,0.4 -- 1,0];
+    ampAah = time [0,0 -- 0.95,1 -- 1,0];
+    ampBoing = (time [0,0 -- 0.5,1 -- 1,0]) * (1 + sin(time*3*tau))/2;
+
+    vol = 1.0;
+    out = amp * w * vol;
+    
+    in = ($inL + $inR) / 2;
+};
+
+I = {
+    amp = ampDing;
+    vol = 0.1;
+    w = waveSquare;
+    phase = phaser (freq/2);
+    waveWhatDelta = 0.05 + 0.2*(1-time);
+    wave2PeaksDelta = 0.03;
+    waveSquareIshDelta = 0.15;
+};
+
+Comb = {
+	del = d / 44100;
+	d = 10000;
+	damp = 0.2;
+	f = 0.84;
+	out = damp * delay del in - f * delay del out;
+};
+
+Allpass = {
+	am = 0.5;
+	d = 10000;
+	del = d / 44100;
+	out = am*in + delay del in - am * delay del out;
+};
+
+C1 = Comb { d = 1557; };
+C2 = Comb { d = 1617; };
+C3 = Comb { d = 1491; };
+C4 = Comb { d = 1422; };
+C5 = Comb { d = 1277; };
+C6 = Comb { d = 1356; };
+C7 = Comb { d = 1188; };
+C8 = Comb { d = 1116; };
+
+A1 = Allpass { d = 225; };
+A2 = Allpass { d = 556; };
+A3 = Allpass { d = 441; };
+A4 = Allpass { d = 341; };
+
+Reverb = { out = in; };
+
+Reverb -> C1; C1 -> A1;
+Reverb -> C2; C2 -> A1;
+Reverb -> C3; C3 -> A1;
+Reverb -> C4; C4 -> A1;
+Reverb -> C5; C5 -> A1;
+Reverb -> C6; C6 -> A1;
+Reverb -> C7; C7 -> A1;
+Reverb -> C8; C8 -> A1;
+
+A1 -> A2;
+A2 -> A3;
+A3 -> A4;
+
+
+I -> Reverb;
+ 
+
+}}}

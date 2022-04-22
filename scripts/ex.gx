@@ -1,0 +1,41 @@
+
+{
+	@Beep <
+		{
+			cycle (
+				{aeAe}/4 
+				<aeA>
+				{A+EAea}/5
+			) *2
+			cycle (
+				{aa^aca^a} /2
+				{Ax6 Avx6} /4
+			)
+		} x6
+	>
+
+	@Ding <
+		{dcbva}*8 ||
+		loop {def}/2
+	>
+
+	loop {
+		<
+			@Ding {AECB}*8 _2.4 ||
+			@Flute loop {
+				{ {acec}x2}
+				{ {bceg} {degB} }
+			} v24
+			@Beep loop rand ({ace} {egb} {ACE} {CEG} {EGB+} {A+C+E+} {GB+D+} {G+E+D+vB+vge}) _2 /6 ^12
+		>
+		<
+			@Ding {BvgevEv}*8 _2.4 ||
+			@Flute loop {
+				{ {evgBvg}x2}
+				{ {fgBvD} {ABvDEv} }
+			} v24
+			@Beep loop rand ({evgBv} {gBvD} {BvDF} {EvGB+v} {DFA+} {GB+vD+} {G+F+E+vD+vB+A+G}) _2 /6 ^12
+		>
+	}
+}/ 4.7 v1 
+

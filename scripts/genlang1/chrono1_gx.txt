@@ -1,0 +1,55 @@
+(
+
+@Drum
+loop [c'c'c2'c'cc'c4]/2 / 4.7
+
+@Ding
+[
+	(aG) BCG e BCG ABCG e BCG
+	(a ) BCG e BCG ABCG e BCG
+	
+	loop
+	(
+		[
+			' E G E
+			E D E/2 ' 
+		]*32
+		[
+			[
+				[a BCG e BCG ABCG e BCG ]x2
+				[av3 ABE dv1 ABE gv1 ABE dv1 ABE]x2
+			] x2
+			
+			[
+				[fGA+E+ FGA+E+]x4 v12
+				[eF^GD+ EF^GD+]x4 v12
+			]
+			[
+				[cGA+E+ CGA+E+] v12
+				[fB+C+G+ FB+C+G+] v12
+				[eA+D+F^+ EA+D+F^+]x4 v12
+			]
+		]
+	)
+]v1  / 4.7 _0.45
+
+@Flute
+[
+	'24
+	
+	loop [
+	'6
+	[b2 [ef^]*3 g4 [bf^]*2 d*12
+	a*3 deA [B5'B6]/2 Ag^ e20 '2 ] x2
+	
+	ef^ [gAB]*8 C6C2
+	[D5'D6]/2 C^C B19 '
+	[ed]*2 e7'g6A2
+	[f^e]/2 f23^
+	]
+
+]v1 / 4.7
+
+
+
+)

@@ -1,0 +1,260 @@
+[
+
+    (
+		@Bass
+		[
+			[
+				adeg '4 adeg av2dfg
+				av4 bce '4 av4 bce av2 bcg
+			] x4
+			[
+				adeg Bged adeg av2dfg
+				av4 bcegecb av4 bce av2 bcg
+			] x2
+		] _5
+
+		@Ding
+		[
+			'64
+			[A2efc2 '2 C2gAe2 '2]*4 _8 ^12
+			[AEA+ '5]/2 ^12 _16 '12 '16
+			[CGC+ '5]/2 ^12 _16 '12 '16
+		]
+  
+		@Aah
+		[
+			[A2Agf2fg]*4 x6
+		]
+	)
+
+    (
+		@Bass
+		[
+			[
+				agBC '4 agBC av2gBC
+				av4efA '4 av4efA av2efB
+			] x2
+			[
+				agBC DCBg agBC av2gBC
+				av4ef ACBAg av4efA av2efB
+			] x2
+		] _5
+
+		@Ding
+		[
+			[A2efc2 '2 ([C2gAe2][A2efc2]) '2]*4 _8 ^12
+			[AEA+ '5]/2 ^12 _16 '12 '16
+			[CGC+ '5]/2 ^12 _16 '12 '16
+		]
+  
+		@Aah
+		[
+			[A2Agf2fg]*4 x4
+		]
+	)
+
+	# Small Flurry
+    (
+		@Bass
+		[
+			[
+				agBC DCBg agBC av2gBC
+				av4ef ACBAg av4efA av2efB
+			] x4
+		] _5
+
+		@Ding
+		[
+			(
+				[ [Aegdfebcebdac av2 bc a16 ]
+				  [CgBfAgdegdfce b de c16 ] ]
+				[ '/2 
+				  [Aegdfebcebdac av2 bc a16 ]
+				  [CgBfAgdegdfce b de c ] ]^12
+			) _4 ^12
+			[AEC+ '5]/2 ^12 _16 '12 '16
+			[CGE+ '5]/2 ^12 _16 '12 '16
+		]
+  
+		@Aah
+		[
+			[A2Agf2fg]*4 x4
+		]
+	)
+
+	# Major
+    (
+		@Bass
+		[
+			[
+				cgBC '4 cgBC av2gBC
+				av4gBC '4 av4gBC av2gBC
+			] x2
+			[
+				cgBC DCBg cgBC av2gBC
+				av4gBC DCBg av4gBC av2gBC
+			] x2
+		] _5
+
+		@Ding
+		[
+			[
+				[C2gAe2 '2]
+				[E2BCg2 '2]
+				[D2ABf2 '2]
+			]*4 _8 ^12
+			[CGE+ '5]/2 ^12 _16 '12 '16
+		]
+  
+		@Aah
+		[
+			[C2Cgf2fg]*4 x4
+		]
+		
+		@Choir
+		[
+			'16*6
+			(
+				[!c3 b c4_7]
+				['e2de3d]
+				[''g6]
+				['''BCEFG]
+				['7 B]
+			)*4
+		]
+	)
+
+	# Big Flurry
+	(
+		@Bass
+		[
+			[
+				cgBC DCBg cgBC av2gBC
+				av4gBC DCBg av4gBC av2gBC
+			] x4
+		] _5
+		
+		@Ding2
+		[
+			[
+				cgBCDgEC FECGFEDC
+				cgBCDgEC FEDCBDCG
+			] x2
+			[
+				C+B+A+GA+GFE GFEDFEDC
+				cgBCDgECFEDCBDCG
+			] x2
+		]
+
+		@Ding
+		[
+			#go up
+			(
+				[
+					cgBCDgEC FECGFEDC
+					cgBCDgEC FEDCBDCG
+				]*3 x2
+				[
+					'
+					[gCGGGDGG C+C+GC+C+C+GG
+					gCGGGDGG C+C+GGGGG]*3 C+*2
+				]x2
+				[
+					'2
+					[cgBCDgEC FECGFEDC
+					cgBCDgEC FEDCBDC]*3 G
+				]^12 x2
+			) /3
+			# go down
+			(
+				[
+					C+B+A+GA+GFE GFEDFEDC
+					cgBCDgECFEDCBDCG
+				]*3 x2
+				[
+					'
+					[G+G+C+C+C+C+C+C+ C+C+GGGGGG
+					gCGGGDGG C+C+GGGGG]*3 C+*2
+				] x2
+				[
+					'2
+					[ C+B+A+GA+GFEGFEDFEDC
+						cgBCDgECFEDCBDC ]*3 G
+				] ^12 x2
+			) /3
+
+		] _2
+  
+		@Aah
+		[
+			[C3gf3g]*4 x4
+		]
+		
+		@Choir
+		[
+			(
+				# bass fg
+				['3 gf3g]v12
+				
+				# bass bc
+				[['3b]x2 [c3b]x3 '3b cb '3c_9]
+				
+				# def
+				[e3f4']x4
+				
+				# gA
+				[g3'[A3g4']x3 A3 g_9]
+				
+				# BC
+				[[C3B]x7 C3B_7]
+				
+				# DEF
+				['7 DE2D2F2EF
+				 'FEDFEF' EFEDFEFD]
+				
+				# GABC+
+				['16
+				 G'6G C+B+A+GA+GA+(G_5 B+_3)]
+			)*4
+		]
+	)
+
+	# Last 2 Dings
+	(
+		@Bass
+		[
+			[
+				cgBC '4 cgBC cgBC
+			] x2
+			cv12 _16
+		] _5
+		
+		@Ding2
+		[
+			C+ *16
+			'16
+			C+ _16
+		]
+
+		@Ding
+		[
+			[!C+G+C++] /3 '7 '8
+			'16
+			[C+G+C++]^12 /3
+		] _16
+		
+		@Choir
+		[
+			(
+				C+
+				#B2+
+				G4
+				C5
+				B6
+				#g8
+				#c8
+			)*4
+		]
+	)
+
+] v9 / 3.6

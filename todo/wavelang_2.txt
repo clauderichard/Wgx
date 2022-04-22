@@ -1,0 +1,76 @@
+
+Wavelang 2.0 Concept
+	Wave 1 plus Effects.
+	An Effect takes as input a wave (stereo).
+	Outputs another wave as the input goes along.
+	An effect might keep track of some history. Or not.
+	Can define an Effect in language similar to a Wave.
+	Each wave in language optionally defines which
+	effect the output plugs into.
+	If not defined then it goes unaltered to earphones.
+	Effect optionally plugs into another effect.
+	So there's a hierarchy of effects.
+	Defining an Effect in Wavelang creates only one
+	instance of it. Unlike Wave which has copies
+	created for polyphony.
+	Effects get turned off at some point after there is
+	no input wave going into it anymore. That point
+	is definable in the language. They get
+	turned back on ass soon as they get an input.
+	"Delay" effect should be available.
+	"Reverb" effect should be doable from Wavelang.
+	Also, Wave should be definable as derived from
+	another wave. Makes some copy-pasting unnecessary.
+	
+/ Wavelang 2.0
+	/ Wave derived from another wave (use JurassicWorld copy then add park bindings to it)
+	/ Effects design
+	/ Add Effects to synthesizer
+	/ WJNAME and WNAME in tokenizer and language
+	/ JName to JurassicWorld in language (use pre-declared world or throw error)
+	/ Effect from a JurassicWorld
+	/ script with one instrument and one effect, to try
+	/ use JurassicWorld's isValidVoice and isValidEffect, in JurassicUniverse.toSynthesizer()
+	/ Connections to effect in language
+	/ Smartly select toVoice or toEffect or none, in JurassicUniverse.toSynthesizer()
+	/ TrexDelay and in wavelang
+	/ enable feedback (refactor JurassicWorld::toVoice etc to copy all trexes first, then update all args)
+	/ Exclude effects that have ultimately no input connection
+	/ Order Effects in synth based on connections. in JUni::toSynth
+	/ Delete DumbassEffect
+	/ Parser more efficient (prev token checks are slow i bet)
+	/ Rename main to out
+	/ Delay Trex with variable delay
+	/ Hardcode Delay buffer size in Common/Capacities.hpp, remove max arg in wavelang
+	/ TrexDelay allocates array only in copy() (use bool parameter)
+	/ Rename input to in. Define them (and $pitch etc) in Keywords.hpp
+	/ Improve Bezier performance (looping code)
+	/ Define Defaults jurassic world w/o explicitly using it for other worlds.
+		Make sure C = A B; takes x from A, if x is defined in Defaults and A but not in B.
+		That means A and B dont automagically copy from Defaults right away.
+	/ Comments in wgx scripts
+	/ Freeverb in a wgx script
+	
+Synthesizer Structure for Wavelang 2.0
+	The synthesizer has an array of instruments.
+	Each instrument has several voices that can be playing it.
+	The synthesizer has an array of effects.
+	One effect is the "last" effect.
+	The synthesizer's output equals the last effect's sum of inputs.
+	The synthesizer has an unordered array of currently playing voices.
+		For each instrument, each voice that is currently playing that instrument.
+		That's the synthesizer's list of playing voices.
+	It also has an ordered array of effects.
+	Each effect A's output can become the input of another effect B.
+		B must come after A in the synthesizer's array of effects.
+	Each instrument has a list of effects (subset of the synthesizer's effects).
+		Each voice playing that instrument will have its output go into all these effects.
+	Each currently-playing voice needs to keep track of:
+		Which instrument it's from. Its index within that instrument.
+		For each effect in its instrument's list of effects,
+			this playing voice's index in the effect's list of currently-on inputs.
+			
+References
+    https://www.dsprelated.com/freebooks/pasp/Comb_Filters.html
+
+			

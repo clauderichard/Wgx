@@ -1,0 +1,49 @@
+
+Genlang 1.0 Concept
+* Genlang 1.0 can be syntactically similar to UKZ.
+* Unlike Ukz, the output of a Genlang script is an object
+	from which you can pull a stream of Note objects.
+	It is a (potentially infinite) stream of notes, not an array.
+* The concepts of sequential and parallel hierarchical "melodies" remains.
+	But in Genlang, resolving the ordering of notes happens at "runtime"
+	while iterating through the resulting stream,
+	not while interpreting (traversing) the script.
+* There should be an elegant way to define a sequence as recurring.
+	"loop G" should take any generator as G, and loop through it infintely.
+	When G conks out, it gets reset and its first event is returned again.
+* There should be at least one kind of events: Note.
+	A Note has similar info as in Ukz (pitch, duration, loudness ...).
+	Syntax for a Note can be similar to Ukz.
+* There will be different kinds of events later, so polymorphism
+	should be used wisely for this one kind of Event.
+* Ability of Events to have their delta times changed
+	by another event: for the future.
+	Conceptually, when an event is yielded by a generator,
+	its post-delta time is snapshottedand that snapshot
+	is used to keep track of when to yield the next event.
+	If something modifies the just-yielded event's post-delta,
+	the next event's start time is unaffected
+	(because snapshot is unaffected).
+	No possibility of parole!
+* For assignments to be used, Wavelang must enable referencing of
+	named variables (define the syntax for this in Wavelang),
+	and Genlang must assign to the same variables in memory.
+* For demonstration, use a named variable in a wave shape,
+	and assign to that variable several times in a song.
+
+/ Genlang 1.0 tasks
+	/ mainArgs reader with file mainargs.txt (script, outfile, seconds included)
+	/ add Forever loop generator class
+	/ Genlang.cpp supporting [aceA]
+	/ Read genlang from another script file (xxxx.gx)
+	/ Add parallel in Genlang.cpp
+	/ Example tune script
+	/ Add operators: *,/,_
+	/ Add operators: ^,v
+	/ Add instrument names in Genlang.cpp
+	/ Add rests
+	/ Fix drift bug April 11th (EggPar?)
+	/ Memories of Green example
+	/ Start-marker. Skip playback until this. "!" in gx file
+	/ Drifting Among Shooting Stars example
+	

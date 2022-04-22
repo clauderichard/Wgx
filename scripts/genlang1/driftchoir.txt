@@ -1,0 +1,56 @@
+    c
+    c e
+    c e g
+   b d  g b
+    c e g  c
+    c e g    e
+    c e g     f
+    cd  g b    g
+	 
+	 
+	 
+    c e g  c
+    c e g  c
+    c e g  c
+ g b   f  b
+f      f a c
+f      f a c
+f      f a c
+ g b    g b d
+	 
+    c e g  c e
+    c e g  c e
+    c e g  cd
+ g b   f  b d
+f   c  f a c  f
+f   c  f a c  f
+f   c  f a c e
+ g b    g b   f
+  
+    c e g  c   g
+    c e g  c  f
+    c e g  c e
+ g b   f  b d
+f      f a c  f
+f      f a c e
+f      f a c  f
+ g b    g b    g
+  
+    c e g  c e    c
+    c e g  c  f  b
+    c e g  c e  a
+ g b   f  b d  g
+f      f a c  f a
+f      f a c e g
+f      f a c  f a
+ g  c   g b d  g b
+  
+    c   g bc   g bc
+    c   g bc   g b
+    c   g bc   g
+    c   g bc   g
+    c   g bc
+    c   g b
+    c   g
+    c   g
+ 

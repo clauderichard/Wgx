@@ -1,0 +1,6 @@
+#ifndef __SAMPLERATE_HPP__
+#define __SAMPLERATE_HPP__
+
+#define WGX_SAMPLESPERSECOND 44100
+
+#endif

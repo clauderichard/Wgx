@@ -1,0 +1,41 @@
+{{{
+
+Def = {
+    waveSquare = phase [0,1 -- 0,-1 -- 0.5,-1 -- 0.5,1 -- 1,1];
+    waveSquareIsh = phase [0,1 -- 
+        waveSquareIshDelta,-1 -- 0.5,-1 -- 
+        0.5+waveSquareIshDelta,1 -- 1,1];
+    waveTri = phase [0,1 -- 0.5,-1 -- 1,1];
+    waveSmooth = phase [0,1 ~~ 0.5,-1 -- 1,1];
+    waveTing = phase [0,1 ~~ 
+    	0.25,-0.5 ~~ 0.5,0.5 ~~
+    	0.75,-1 ~~ 1,1];
+    wave2Peaks = phase [0,1 ~~ wave2PeaksDelta,-1 ~~ 0.5,1 ~~ (1-wave2PeaksDelta),-1 ~~ 1,1];
+    waveWhat = phase [0,1 ~~ (0.5-waveWhatDelta),0 ~~ 0.5,0.5 ~~ (0.5+waveWhatDelta),-1 ~~ 1,1];
+    waveNes = phase [0,0 -- 0.25,1 -- 0.75,-1 -- 0.75,0 -- 1,1];
+    waveNes2 = phase [0,0 -- 0.5,1 -- 0.5,0 -- 1,-1];
+
+    waveSquareIshDelta = 0.1;
+    wave2PeaksDelta = 0.2;
+    waveWhatDelta = 0.2;
+        
+    ampDing = time [0,0 -- 0.01,1 -- 0.5,0.7 -- 1,0];
+    ampDing2 = time [0,0 -- 0.005,1 -- 0.2,0.6 -- 0.4,0.4 -- 1,0];
+    ampAah = time [0,0 -- 0.95,1 -- 1,0];
+    ampBoing = (time [0,0 -- 0.5,1 -- 1,0]) * (1 + sin(time*3*tau))/2;
+
+    vol = 1.0;
+    out = amp * w * vol;
+};
+
+Violin = Def
+{
+    amp = ampAah;
+    vol = 0.8;
+    w = wave2Peaks;
+    wave2PeaksDelta = 0.03;
+    waveSquareIshDelta = 0.1;
+};
+
+
+}}}

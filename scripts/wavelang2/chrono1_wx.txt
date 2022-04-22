@@ -1,0 +1,104 @@
+{{{
+
+Defaults = {
+    waveSin = sin(phase * tau);
+    waveSawtooth = phase;
+    waveSquare = phase [0,1 -- 0,-1 -- 0.5,-1 -- 0.5,1 -- 1,1];
+    waveSquareIsh = phase [0,1 -- 
+        waveSquareIshDelta,-1 -- 0.5,-1 -- 
+        0.5+waveSquareIshDelta,1 -- 1,1];
+    waveTri = phase [0,1 -- 0.5,-1 -- 1,1];
+    waveSmooth = phase [0,1 ~~ 0.5,-1 -- 1,1];
+    waveTing = phase [0,1 ~~ 
+    	0.25,-0.5 ~~ 0.5,0.5 ~~
+    	0.75,-1 ~~ 1,1];
+    wave2Peaks = phase [0,1 ~~ wave2PeaksDelta,-1 ~~ 0.5,1 ~~ (1-wave2PeaksDelta),-1 ~~ 1,1];
+    waveWhat = phase [0,1 ~~ (0.5-waveWhatDelta),0 ~~ 0.5,0.5 ~~ (0.5+waveWhatDelta),-1 ~~ 1,1];
+    waveNes = phase [0,0 -- 0.25,1 -- 0.75,-1 -- 0.75,0 -- 1,1];
+    waveNes2 = phase [0,0 -- 0.5,1 -- 0.5,0 -- 1,-1];
+
+    waveSquareIshDelta = 0.1;
+    wave2PeaksDelta = 0.2;
+    waveWhatDelta = 0.2;
+        
+    ampDing = time [0,0 -- 0.01,1 -- 0.5,0.7 -- 1,0];
+    ampDing2 = time [0,0 -- 0.005,1 -- 0.2,0.6 -- 0.4,0.4 -- 1,0];
+    ampAah = time [0,0 -- 0.95,1 -- 1,0];
+    ampTri = time [0,0 -- 0.5,1 -- 1,0];
+    ampSquarish = time [0,0 -- 
+    	ampSquarishDelta,1 -- 
+    	(1-ampSquarishDelta),1 -- 1,0];
+    ampSquarishDelta = 0.02;
+    ampBoing = (time [0,0 -- 0.5,1 -- 1,0]) * (1 + sin(time*tau))/2;
+
+    vol = 1.0;
+    out = amp * w * vol;
+    
+    in = ($inL + $inR) / 2;
+};
+
+
+Ding = {
+    amp = ampDing2;
+    vol = 0.2;
+    w = waveSin;
+    octave = 0;
+    waveWhatDelta = 0.05 + 0.2*(1-time);
+    wave2PeaksDelta = 0.03;
+    waveSquareIshDelta = 0.15;
+};
+
+Flute = {
+    #freq2 = freq * (1 + 0.004*sin(timeAbs*5));
+    freq2 = freq;
+    phase = phaser freq2;
+    ampp = timeAbs [0,0 -- 
+    	startUp,1 -- 
+    	($duration-endDrop),1 -- $duration,0];
+    amp = ampp * (1 + 0.05*sin(timeAbs*5));
+    startUp = 0.07;
+    endDrop = 0.05;
+    vol = 0.07;
+    w = waveSmooth;
+    octave = 1;
+    waveWhatDelta = 0.05 + 0.2*(1-time);
+    wave2PeaksDelta = 0.03;
+    waveSquareIshDelta = 0.15;
+};
+
+Drum = {
+	w = noise;
+	amp = ampDing;
+	vol = 0.1;
+};
+
+Echoes =
+{
+    time = timer;
+    gain = 0.95;
+    gain2 = 0.7;
+    l = (1+sin(time*5))/2;
+    r = 1-l;
+    x1 = echo 0.1 $inL gain;
+    x2 = echo 0.22 x1 gain;
+    outL2 = echo 0.5 x2 (gain/2);
+    y1 = echo 0.1 $inR gain2;
+    y2 = echo 0.22 y1 gain2;
+    outR = echo 0.5 y2 (gain2);
+    outL = echoes 0.26 $inL 0.4;
+    outR2 = echoes 0.26 $inR 0.8;
+    outL2 = outR;
+};
+EchoesD =
+{
+    time = timer;
+    gain = 0.55;
+    out = $inR + gain * delay 0.1 out;
+};
+
+
+Ding -> Echoes;
+Flute -> Echoes;
+Drum -> EchoesD;
+
+}}}

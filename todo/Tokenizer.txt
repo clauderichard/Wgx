@@ -1,0 +1,5 @@
+Several automata (one for words, one for charstar stuff)
+They have races. the one that tokenizes longest wins.
+Words one wins if tied.
+If only one even starts, it will win.
+B doesn't start while A is already running.

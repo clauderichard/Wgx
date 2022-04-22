@@ -1,0 +1,95 @@
+{{{
+
+Defaults = {
+    waveSquare = phase [0,1 -- 0,-1 -- 0.5,-1 -- 0.5,1 -- 1,1];
+    waveSquareIsh = phase [0,1 -- 
+        waveSquareIshDelta,-1 -- 0.5,-1 -- 
+        0.5+waveSquareIshDelta,1 -- 1,1];
+    waveTri = phase [0,1 -- 0.5,-1 -- 1,1];
+    waveSmooth = phase [0,1 ~~ 0.5,-1 -- 1,1];
+    waveTing = phase [0,1 ~~ 
+    	0.25,-0.5 ~~ 0.5,0.5 ~~
+    	0.75,-1 ~~ 1,1];
+    wave2Peaks = phase [0,1 ~~ wave2PeaksDelta,-1 ~~ 0.5,1 ~~ (1-wave2PeaksDelta),-1 ~~ 1,1];
+    waveWhat = phase [0,1 ~~ (0.5-waveWhatDelta),0 ~~ 0.5,0.5 ~~ (0.5+waveWhatDelta),-1 ~~ 1,1];
+    waveNes = phase [0,0 -- 0.25,1 -- 0.75,-1 -- 0.75,0 -- 1,1];
+    waveNes2 = phase [0,0 -- 0.5,1 -- 0.5,0 -- 1,-1];
+
+    waveSquareIshDelta = 0.1;
+    wave2PeaksDelta = 0.2;
+    waveWhatDelta = 0.2;
+        
+    ampDing = time [0,0 -- 0.01,1 -- 0.5,0.7 -- 1,0];
+    ampDing2 = time [0,0 -- 0.005,1 -- 0.2,0.6 -- 0.4,0.4 -- 1,0];
+    ampAah = time [0,0 -- 0.95,1 -- 1,0];
+    ampBoing = (time [0,0 -- 0.5,1 -- 1,0]) * (1 + sin(time*3*tau))/2;
+
+    vol = 1.0;
+    out = amp * w * vol;
+    
+    in = ($inL + $inR) / 2;
+};
+
+I = {
+    amp = ampAah;
+    vol = 0.1;
+    w = waveSmooth;
+    phase = phaser (freq/2);
+    waveWhatDelta = 0.05 + 0.2*(1-time);
+    wave2PeaksDelta = 0.03;
+    waveSquareIshDelta = 0.15;
+};
+
+
+Freeverb = {
+	damp = 0.2;
+	f = 0.84;
+	# f is room size
+	am = 0.5;
+	
+	#comb filters
+	c1 = damp * delay (1557/44100) in 
+		- f * delay (1557/44100) c1;
+	c2 = damp * delay (1617/44100) in 
+		- f * delay (1617/44100) c2;
+	c3 = damp * delay (1491/44100) in 
+		- f * delay (1491/44100) c3;
+	c4 = damp * delay (1422/44100) in 
+		- f * delay (1422/44100) c4;
+	c5 = damp * delay (1277/44100) in 
+		- f * delay (1277/44100) c5;
+	c6 = damp * delay (1356/44100) in 
+		- f * delay (1356/44100) c6;
+	c7 = damp * delay (1188/44100) in 
+		- f * delay (1188/44100) c7;
+	c8 = damp * delay (1116/44100) in 
+		- f * delay (1116/44100) c8;
+		
+	#c = c1+c2+c3+c4+c5+c6+c7+c8;
+	c = c1+c2+c3+c4+c5+c6+c7+c8;
+		
+	#allpass filters
+	a0 = c;
+	a1 = am*a0 + delay (225/44100) a0 
+		- am * delay (225/44100) a1;
+	a2 = am*a1 + delay (556/44100) a1 
+		- am * delay (556/44100) a2;
+	a3 = am*a2 + delay (441/44100) a2 
+		- am * delay (441/44100) a3;
+	a4 = am*a3 + delay (341/44100) a3 
+		- am * delay (341/44100) a4;
+		
+	out = a4;
+};
+
+R = Freeverb {
+	f = 0.9;
+	damp = 0.2;
+	am = 0.5;
+};
+
+
+I->R;
+ 
+
+}}}
