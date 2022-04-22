@@ -26,7 +26,7 @@ class MainArgs
 	MainArgs()
 	{
 		string wgxRootDir = WGX_ROOTDIR;
-		readMainArgsFile(wgxRootDir + "/mainargs.txt");
+		readMainArgsFile(wgxRootDir + "/scripts/mainargs.txt");
 	}
 
 	string operator[](const string &name)
