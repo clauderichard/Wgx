@@ -1,0 +1,8 @@
+
+waveScriptName = ex
+genScriptName = ex
+
+playDirect = 1
+
+outFileName = ex
+outSeconds = 60
