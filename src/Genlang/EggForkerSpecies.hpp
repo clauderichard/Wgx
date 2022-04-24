@@ -173,7 +173,8 @@ class EggSeq : public IEggForker
 
 	void onStart()
 	{
-		restartThread(0);
+		if(_threads.size()>0)
+			restartThread(0);
 	}
 
 	void onThreadDone(size_t threadIndex)

@@ -1,0 +1,47 @@
+{}
+<>
+
+<ab2c>
+{a0_1 b0_2 c}
+
+<ab2|c>
+{a0_1 b0_2 c '}
+
+{a   b  c  c^ d ev e f  g   g^   A    B+ }
+{bv2 cv b^ dv d d^ e e^ Av2 a^11 a^12 a^26 }
+
+{abc}
+{def}v5
+
+{abcde}
+{defgA}v5
+
+{ae}
+<a{'e}||>
+
+{g2 f5 a3_4 e}
+<g*2 {'2f*5} {'7a*4} {'*10 e}>
+
+loop {cd}
+{cdcdcd}x100
+
+{a'de}
+<a {'2de}>
+
+{ cycle(ab) c }x3
+{ ac bc ac}
+
+{ab || c}
+{ab}
+
+<{ab} c || {de}>
+{<acd>b}
+
+{{ab|c}{de}}
+{ab<cd>e}
+
+{{a|b||c}{de}}
+{a<bd>e}
+
+rand(d)x7
+{ddddddd}

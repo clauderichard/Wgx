@@ -37,6 +37,14 @@ void IEggForker::addOfficialEnd()
 }
 void IEggForker::addDeath()
 {
+	//if(_threads.size() > 1)
+	//{
+	//	size_t j = _threads.size() - 1;
+	//	auto t = _threads[0];
+	//	_threads[0] = _threads[j];
+	//	_threads[j] = t;
+	//}
+	//_deathIndex = 0;
 	_deathIndex = _threads.size() - 1;
 }
 
