@@ -45,3 +45,54 @@ loop {cd}
 
 rand(d)x7
 {ddddddd}
+
+{cycle({a|b} c)} x4
+{a<bc>a<bc>}
+
+{aa} << {{cg}/2}
+{cgcg}/2
+
+{cde} << {{ae}/2}
+{cgdAeB}/2
+
+{cd2e} << {{ae}/2}
+{cg {dA}*2 eB}/2
+
+{ad} << {ae}
+{a<ed>A}
+
+{a'} << {ae}
+{ae}
+
+{d'f}*4_1 << {aeve}
+{dg^A ' '4 fBC}
+
+{d'f}*4 << {{a ev e}/4}
+{dg^A ' '4 fBC}
+
+{d'f}*4 << {{a ev e}/3}
+{dg^A '3 fBC}*4/3
+
+{abcdefgA} << {ae}
+{a<eb><f^c><gd><Ae><Bf><Cg><DA>E}
+
+{a {b|c}}
+{ab|c}
+
+{ {a|b} '}
+{ a b }
+
+{ {a|b} {c|d}}
+{ a <bc> | d }
+
+{ {a|bcd} {e|f} ABC}
+{ a <be> <cfA> <dB> C}
+
+{ {a|bcd} {e|E} {f|gA} BC}
+{ a <be> <cEf> <dgB> <AC>}
+
+{{{{a|b}}}c}
+{a<bc>}
+
+{{{{a|b}{c|d}}}e}
+{a<bc><de>}

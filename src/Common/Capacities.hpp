@@ -32,5 +32,6 @@
 // Egg threads
 #define EGG_REPEAT_MINTHREADS 4
 #define EGG_FOREVER_THREADS 16
+#define EGG_MELINJECT_THREADS 3
 
 #endif

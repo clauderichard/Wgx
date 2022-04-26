@@ -35,6 +35,7 @@ enum GenLangTkTypes
 	GDIV,
 	GSHARP,
 	GFLAT,
+	GINJ,
 	GX,
 	GREST,
 	GUNDERSLASH,
@@ -74,6 +75,8 @@ GenLang::GenLang()
 	_language.addWord("*", GMUL);
 	_language.addWord("/", GDIV);
 	_language.addWord("x", GX);
+	
+	_language.addWord("<<", GINJ);
 
 	////////////////////////////////////////////////
 	// Pitch, Note, Real
@@ -129,6 +132,8 @@ GenLang::GenLang()
 	_language.addParseRule(GGEN, {GGEN, GSHARP, GREAL}, {0, 2}, gSharpGen1);
 	_language.addParseRule(GGEN, {GGEN, GFLAT, GREAL}, {0, 2}, gFlatGen1);
 	_language.addParseRule(GGEN, {GGEN, GPLUS}, {0}, gOctavePlusGen);
+
+	_language.addParseRule(GGEN, {GGEN, GINJ, GGEN}, {0,2}, gMelodyInject);
 
 	////////////////////////////////////////////////
 	// Numbers

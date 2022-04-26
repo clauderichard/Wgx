@@ -1,7 +1,7 @@
 #include "GenLang.hpp"
 #include "Gen/IEgg.hpp"
-#include "EggForkerSpecies.hpp"
 #include "EggSpecies.hpp"
+#include "EggForkerSpecies.hpp"
 #include "Wave/Synthesizer.hpp"
 #include "Parsing/CharFunctions.hpp"
 #include <sstream>
@@ -196,6 +196,13 @@ ForkerElem gPipe2()
 	ForkerElem ret;
 	ret._type = ForkerElemType_Death;
 	return ret;
+}
+
+shared_ptr<IEgg> gMelodyInject(
+	shared_ptr<IEgg> &left,
+	shared_ptr<IEgg> &right)
+{
+	return make_shared<EggMelodyInject>(left, right);
 }
 
 ////////////////////////////////////////////////

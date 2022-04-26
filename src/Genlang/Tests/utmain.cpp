@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <memory>
+#include <sstream>
 #include "Genlang/IEggForker.hpp"
 #include "Genlang/GenLang.hpp"
 using namespace std;
@@ -45,6 +46,9 @@ void eggeq(const string & x, const string & y, int numE)
 		bool end2 = false;
 		for (int i = 0; i < numE; i++)
 		{
+			stringstream ss;
+			ss << i;
+			string istr = ss.str();
 			try
 			{
 				nextEv(egg1, e1, start1);
@@ -71,25 +75,29 @@ void eggeq(const string & x, const string & y, int numE)
 			}
 			if (end1 && end2)
 				break;
-			if (end1 || end2)
+			if (end1)
 			{
-				throw Wfail("egg1 end != egg2 end");
+				throw Wfail(istr + "egg1 ended before egg2");
+			}
+			else if (end2)
+			{
+				throw Wfail(istr + "egg2 ended before egg1");
 			}
 			if (start1 != start2)
 			{
-				throw Wfail("e1 != e2 starttime");
+				throw Wfail(istr + "e1 != e2 starttime");
 			}
 			if (e1._info._duration != e2._info._duration)
 			{
-				throw Wfail("e1 != e2 duration");
+				throw Wfail(istr + "e1 != e2 duration");
 			}
 			if (e1._info._pitch != e2._info._pitch)
 			{
-				throw Wfail("e1 != e2 pitch");
+				throw Wfail(istr + "e1 != e2 pitch");
 			}
 			if (e1._action != e2._action)
 			{
-				throw Wfail("e1 != e2 action");
+				throw Wfail(istr + "e1 != e2 action");
 			}
 
 		}

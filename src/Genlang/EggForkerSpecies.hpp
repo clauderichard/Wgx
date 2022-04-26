@@ -9,13 +9,13 @@
 #include <memory>
 using namespace std;
 
-////////////////////////////////////////////////
+// //////////////////////////////////////////////
 
-class EggForever : public IEggForker
+class EggForever:public IEggForker
 {
   public:
-	EggForever(shared_ptr<IEgg> egg)
-		: IEggForker({egg->deepcopy()})
+	EggForever(shared_ptr < IEgg > egg)
+	:IEggForker({egg->deepcopy()})
 	{
 		for (size_t i = 1; i < EGG_FOREVER_THREADS; i++)
 		{
@@ -23,9 +23,9 @@ class EggForever : public IEggForker
 		}
 	}
 
-	shared_ptr<IEgg> deepcopy()
+	shared_ptr < IEgg > deepcopy()
 	{
-		return make_shared<EggForever>(_threads[0]._egg->deepcopy());
+		return make_shared < EggForever > (_threads[0]._egg->deepcopy());
 	}
 
 	void onStart()
@@ -44,15 +44,15 @@ class EggForever : public IEggForker
 	}
 };
 
-////////////////////////////////////////////////
+// //////////////////////////////////////////////
 
-class EggRepeat : public IEggForker
+class EggRepeat:public IEggForker
 {
   public:
-	EggRepeat(shared_ptr<IEgg> egg, size_t times)
-		: IEggForker({egg}),
-		  _times(times),
-		  _timesDone(0)
+	EggRepeat(shared_ptr < IEgg > egg, size_t times):IEggForker(
+																   {
+																   egg}
+	), _times(times), _timesDone(0)
 	{
 		for (size_t i = 1; i < EGG_REPEAT_MINTHREADS; i++)
 		{
@@ -60,9 +60,9 @@ class EggRepeat : public IEggForker
 		}
 	}
 
-	shared_ptr<IEgg> deepcopy()
+	shared_ptr < IEgg > deepcopy()
 	{
-		return make_shared<EggRepeat>(_threads[0]._egg->deepcopy(), _times);
+		return make_shared < EggRepeat > (_threads[0]._egg->deepcopy(), _times);
 	}
 
 	void onStart()
@@ -94,17 +94,19 @@ class EggRepeat : public IEggForker
 	size_t _timesDone;
 };
 
-////////////////////////////////////////////////
+// //////////////////////////////////////////////
 
-class EggPar : public IEggForker
+class EggPar:public IEggForker
 {
   public:
-	EggPar() {}
-
-	shared_ptr<IEgg> deepcopy()
+	EggPar()
 	{
-		auto ret = make_shared<EggPar>();
-		for (auto g : _threads)
+	}
+
+	shared_ptr < IEgg > deepcopy()
+	{
+		auto ret = make_shared < EggPar > ();
+	  for (auto g:_threads)
 		{
 			if (g._egg)
 			{
@@ -112,8 +114,7 @@ class EggPar : public IEggForker
 			}
 			else
 			{
-				CRASH("wtf...")
-				ret->addOfficialEnd();
+				CRASH("wtf...") ret->addOfficialEnd();
 			}
 		}
 		ret->_officialEndIndex = _officialEndIndex;
@@ -144,17 +145,19 @@ class EggPar : public IEggForker
 	}
 };
 
-////////////////////////////////////////////////
+// //////////////////////////////////////////////
 
-class EggSeq : public IEggForker
+class EggSeq:public IEggForker
 {
   public:
-	EggSeq() {}
-
-	shared_ptr<IEgg> deepcopy()
+	EggSeq()
 	{
-		auto ret = make_shared<EggSeq>();
-		for (auto g : _threads)
+	}
+
+	shared_ptr < IEgg > deepcopy()
+	{
+		auto ret = make_shared < EggSeq > ();
+	  for (auto g:_threads)
 		{
 			if (g._egg)
 			{
@@ -162,8 +165,7 @@ class EggSeq : public IEggForker
 			}
 			else
 			{
-				CRASH("wtf...")
-				ret->addOfficialEnd();
+				CRASH("wtf...") ret->addOfficialEnd();
 			}
 		}
 		ret->_officialEndIndex = _officialEndIndex;
@@ -173,7 +175,7 @@ class EggSeq : public IEggForker
 
 	void onStart()
 	{
-		if(_threads.size()>0)
+		if (_threads.size() > 0)
 			restartThread(0);
 	}
 
@@ -199,32 +201,86 @@ class EggSeq : public IEggForker
 
 ////////////////////////////////////////////////
 
-class EggMelodyInject : public IEggForker
+class EggMelInjectModify : public IEggEventModify
 {
   public:
-	EggMelodyInject(shared_ptr<IEgg> left, shared_ptr<IEgg> right) {}
+	EggMelInjectModify(shared_ptr<IEgg> egg)
+		: IEggEventModify(egg) {}
+		  
+	void modifyEvent(Event &ev)
+	{
+		ev._info._pitch += _leftPitch;
+		ev._info._postLag *= _leftDur;
+		ev._info._duration *= _leftDur;
+	}
 
 	shared_ptr<IEgg> deepcopy()
 	{
-		return make_shared<EggMelodyInject>(_left->deepcopy(), _right->deepcopy());
+		return make_shared<EggMelInjectModify>(
+			_egg->deepcopy());
+	}
+
+  private:
+	double _leftPitch;
+	double _leftDur;
+	friend class EggMelodyInject;
+};
+
+class EggMelodyInject:public IEggForker
+{
+  public:
+	EggMelodyInject(shared_ptr<IEgg> left, shared_ptr<IEgg> right)
+		: _nextThreadIndex(1),
+		  _left(left),
+		  _right(right)
+	{
+		addPart(left);
+		for(size_t i=0; i<EGG_MELINJECT_THREADS; i++)
+		{
+			addPart(NULL);
+		}
+	}
+
+	shared_ptr < IEgg > deepcopy()
+	{
+		return make_shared < EggMelodyInject > (_left->deepcopy(), _right->deepcopy());
 	}
 
 	void onStart()
 	{
-		NOTIMPL("EggMelodyInject::onStart")
+		restartThread(0);
 	}
 
 	void onThreadDone(size_t threadIndex)
 	{
-		NOTIMPL("EggMelodyInject::onThreadDone")
+	}
+	
+	void onThreadEvent(size_t threadIndex, Event &e)
+	{
+		if(threadIndex==0 && e._action == g_genlangNoteAction)
+		{
+			e._action = g_genlangRestAction;
+			// Start a thread of RHS transposed & expanded
+			size_t ti = _nextThreadIndex;
+			if (_threads[ti]._isPlaying)
+			{
+				CRASH("Not enough MelInject threads");
+			}
+			_nextThreadIndex = (_nextThreadIndex % EGG_MELINJECT_THREADS) + 1;
+			auto eggm = make_shared<EggMelInjectModify>(_right->deepcopy());
+			eggm->_leftDur = e._info._duration;
+			eggm->_leftPitch = e._info._pitch;
+			_threads[ti]._egg = eggm;
+			restartThread(ti);
+		}
 	}
 
   private:
-	shared_ptr<IEgg> _left;
-	shared_ptr<IEgg> _right;
-
+	shared_ptr < IEgg > _left;
+	shared_ptr < IEgg > _right;
+	size_t _nextThreadIndex;
 };
 
-////////////////////////////////////////////////
+// //////////////////////////////////////////////
 
 #endif

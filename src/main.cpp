@@ -20,7 +20,7 @@ using namespace std;
 
 ////////////////////////////////////////////////
 
-class MainArgs
+class MainArgs 
 {
   public:
 	MainArgs()

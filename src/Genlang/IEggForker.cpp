@@ -9,17 +9,21 @@ using namespace std;
 IEggForker::IEggForker()
 	: _officialEndIndex(SIZE_MAX),
 		_deathIndex(SIZE_MAX),
-		_nextEventIndex(SIZE_MAX) {}
+		_nextEventIndex(SIZE_MAX),
+		_numPlayingThreads(0) {}
 IEggForker::IEggForker(vector<shared_ptr<IEgg>> eggs)
 	: _officialEndIndex(SIZE_MAX),
 		_deathIndex(SIZE_MAX),
-		_nextEventIndex(SIZE_MAX)
+		_nextEventIndex(SIZE_MAX),
+		_numPlayingThreads(0)
 {
 	for (auto &e : eggs)
 	{
 		addPart(e);
 	}
 }
+
+void IEggForker::onThreadEvent(size_t threadIndex, Event &e) {}
 
 void IEggForker::addPart(shared_ptr<IEgg> gen)
 {
@@ -29,6 +33,7 @@ void IEggForker::addPart(shared_ptr<IEgg> gen)
 	th._isPlaying = false;
 	th._isDone = false;
 	_threads.push_back(th);
+	_playingThreadIndexes.push_back(0);
 }
 
 void IEggForker::addOfficialEnd()
@@ -37,14 +42,6 @@ void IEggForker::addOfficialEnd()
 }
 void IEggForker::addDeath()
 {
-	//if(_threads.size() > 1)
-	//{
-	//	size_t j = _threads.size() - 1;
-	//	auto t = _threads[0];
-	//	_threads[0] = _threads[j];
-	//	_threads[j] = t;
-	//}
-	//_deathIndex = 0;
 	_deathIndex = _threads.size() - 1;
 }
 
@@ -76,6 +73,7 @@ Event IEggForker::pop()
 		{
 			Event e = _threads[_nextEventIndex]._egg->pop();
 			_threads[_nextEventIndex]._timeToNext = e._info._postLag;
+			onThreadEvent(_nextEventIndex, e);
 			updateNextIndex();
 			if (_nextEventIndex < SIZE_MAX)
 			{
@@ -93,7 +91,7 @@ Event IEggForker::pop()
 		catch (NoEventsLeft)
 		{
 			size_t i = _nextEventIndex;
-			_threads[i]._isPlaying = false;
+			killThread(i);
 			updateNextIndex();
 			if (!_threads[i]._isDone)
 			{
@@ -104,20 +102,46 @@ Event IEggForker::pop()
 	}
 }
 
+void IEggForker::killThread(size_t index)
+{
+	_threads[index]._isPlaying = false;
+	bool here = false;
+	for(size_t i=0; i<_numPlayingThreads; i++)
+	{
+		if (here)
+		{
+			_playingThreadIndexes[i-1] = _playingThreadIndexes[i];
+		}
+		else if (_playingThreadIndexes[i] == index)
+		{
+			here = true;
+		}
+	}
+	_numPlayingThreads --;
+}
+
 void IEggForker::killAllThreads()
 {
 	for (size_t i = 0; i < _threads.size(); i++)
 	{
 		_threads[i]._isPlaying = false;
 	}
+	_numPlayingThreads = 0;
 }
 
 void IEggForker::restartThread(size_t index)
 {
+	if (_threads[index]._isPlaying)
+	{
+		cout << "restarting a playing egg thread?!" << endl;
+	}
+	_playingThreadIndexes[_numPlayingThreads] = index;
+	_numPlayingThreads ++;
 	_threads[index]._egg->reset();
 	_threads[index]._timeToNext = 0;
 	_threads[index]._isPlaying = true;
 	_threads[index]._isDone = false;
+	
 }
 
 ////////////////////////////////////////////////
@@ -127,10 +151,10 @@ void IEggForker::updateNextIndex()
 	_nextEventIndex = SIZE_MAX;
 	double minT;
 	bool tFound = false;
-	for (size_t i = 0; i < _threads.size(); i++)
+	for (size_t k = 0; k < _numPlayingThreads; k++)
 	{
-		if (_threads[i]._isPlaying &&
-			(!tFound || _threads[i]._timeToNext < minT))
+		size_t i = _playingThreadIndexes[k];
+		if (!tFound || _threads[i]._timeToNext < minT)
 		{
 			_nextEventIndex = i;
 			minT = _threads[i]._timeToNext;
@@ -145,13 +169,14 @@ double IEggForker::forward()
 	double forwardTime = _threads[_nextEventIndex]._timeToNext;
 	if (forwardTime > 0)
 	{
-		for (size_t j = 0; j < _threads.size(); j++)
+		for (size_t k = 0; k < _numPlayingThreads; k++)
 		{
+			size_t j = _playingThreadIndexes[k];
 			if (j == _nextEventIndex)
 			{
 				_threads[j]._timeToNext = 0;
 			}
-			else if (_threads[_nextEventIndex]._isPlaying)
+			else
 			{
 				_threads[j]._timeToNext -= forwardTime;
 			}

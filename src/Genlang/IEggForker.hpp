@@ -36,6 +36,7 @@ class IEggForker : public IEgg
 	// Abstract methods
 	virtual void onStart() = 0;
 	virtual void onThreadDone(size_t threadIndex) = 0;
+	virtual void onThreadEvent(size_t threadIndex, Event &e);
 	////////////////////////////////////////////////
 
 	IEggForker();
@@ -48,12 +49,15 @@ class IEggForker : public IEgg
 	void reset();
 	Event pop();
 
+	void killThread(size_t index);
 	void killAllThreads();
 	void restartThread(size_t index);
 
 
   protected:
 	vector<EggForkerThread> _threads;
+	vector<size_t> _playingThreadIndexes;
+	size_t _numPlayingThreads;
 	size_t _officialEndIndex;
 	size_t _deathIndex;
 	size_t _nextEventIndex;
