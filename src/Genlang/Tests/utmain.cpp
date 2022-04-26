@@ -95,6 +95,10 @@ void eggeq(const string & x, const string & y, int numE)
 			{
 				throw Wfail(istr + "e1 != e2 pitch");
 			}
+			if (e1._info._voiceIndex != e2._info._voiceIndex)
+			{
+				throw Wfail(istr + "e1 != e2 voiceIndex");
+			}
 			if (e1._action != e2._action)
 			{
 				throw Wfail(istr + "e1 != e2 action");
@@ -122,6 +126,13 @@ int main(int argc, char **argv)
 	//eggeq("{abc}", "{def}v5", 99);
 	//eggeq("{abcde}", "{defgA}v5", 99);
 	//eggeq("{ae}", "<a{'e}||>", 99);
+	
+	map<string,size_t> voi;
+	voi["a"] = 0;
+	voi["b1"] = 1;
+	voi["c2c"] = 2;
+	voi["dD"] = 3;
+	GenLang::initVoiceIndexes(voi);
 	
 	string filepath = "eggeq.txt";
 	ifstream myfile(filepath);

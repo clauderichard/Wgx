@@ -17,6 +17,11 @@ void mul(double &a, double &b) { a *= b; }
 
 void takesecond(double &a, double &b) { a = b; }
 void takesecondSizet(size_t &a, size_t &b) { a = b; }
+void takesecondIfNegSizet(size_t &a, size_t &b)
+{
+	if (a == 9999)
+		a = b;
+}
 
 ////////////////////////////////////////////////
 // Traverser pre-functions
@@ -48,7 +53,7 @@ Event gEventFromPitch(double &pitch)
 	Event ev;
 	ev._info._postLag = 1;
 	ev._info._duration = 1;
-	ev._info._voiceIndex = 0;
+	ev._info._voiceIndex = 9999;
 	ev._info._pitch = pitch;
 	ev._info._isStart = false;
 	ev._action = g_genlangNoteAction;
@@ -175,7 +180,7 @@ shared_ptr<IEgg> gVoiceGen(
 	size_t &v, shared_ptr<IEgg> &gen)
 {
 	return make_shared<EggMemberModify<size_t, size_t>>(
-		gen, &EventInfo::refVoiceIndex, takesecondSizet, v);
+		gen, &EventInfo::refVoiceIndex, takesecondIfNegSizet, v);
 }
 
 ForkerElem gEggElem(shared_ptr<IEgg> &egg)

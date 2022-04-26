@@ -164,7 +164,7 @@ void GenLang::initVoiceIndexes(
 	for (auto x : a)
 	{
 		g_voiceNameToIndex[x.first] = x.second;
-		cout << x.first << " -> " << x.second << endl;
+		//cout << x.first << " -> " << x.second << endl;
 	}
 }
 

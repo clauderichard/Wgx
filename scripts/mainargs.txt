@@ -2,7 +2,7 @@
 waveScriptName = ex
 genScriptName = ex
 
-playDirect = 1
+playDirect = 0
 
 outFileName = ex
-outSeconds = 60
+outSeconds = 120

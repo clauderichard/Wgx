@@ -13,11 +13,11 @@ _ Genlang 2.0 Completion
 	/ End Pipe (which part of Par has length)
 	/ Death pipe, to kill parent when self conks out (for Par)
 	/ Rand egg
-	_ Var assignment events (name := egg)
+	/ Melody-inject operator! work with random/cycle on both sides
+	_ Var assignment events (name := egg ?)
 	_ Var-referencing events ($name)
 	_ Real-Var assignment events (name := double)
 	_ Wavelang var-references (modified by eggs)
-	_ Melody-inject operator! work with random on each sides
 	_ Example random song!
 	_ Cleanup
 	

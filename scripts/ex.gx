@@ -1,47 +1,22 @@
 
 {
-	@Beep
+	
 	{
-		{cdefgABC} <<
-		{{acevgvA}/5}
-		
-		{d'df'g'd'dfdg^g^gg dv12*4 | '*4}*4
-		<<
-		<av12 {{aevA}/3}> /6
-		
-		D+*4
+		<
+			@Ding {AECB}*8 _2.4 ||
+			@Flute loop {
+				{ {acec}x2}
+				{ {bceg} {degB} }
+			} v24
+			>
+		<
+			@Ding {BvgevEv}*8 _2.4 ||
+			@Flute loop {
+				{ {evgBvg}x2}
+				{ {fgBvD} {ABvDEv} }
+			} v24
+		>
 	}
-	
-	@Beep
-	{
-		A6'2 {A'}/2x4 {A'gA3} '2 {A'}/2x4
-		{A'gA3} '2 {A'}/2x4
-		{A'eee'eee'eee'e'}*3/4
-	}*2/3 ^2
-	
-	<
-		@Beep {
-			cycle (
-				{aeAe}/4 
-				<aeA>
-				{A+EAea}/5
-			) *2
-			cycle (
-				{aa^aca^a} /2
-				{Ax6 Avx6} /4
-				{A+EEvAeeva}x4 /5
-				{d'avf'f^'G^} /2
-			)
-		} x24 ||
-		@Flute loop {
-			ACfE DA^
-		}*5
-	>
-
-	@Ding <
-		{dcbva}*8 ||
-		loop {def}/2
-	>
 
 	loop {
 		<
@@ -50,7 +25,7 @@
 				{ {acec}x2}
 				{ {bceg} {degB} }
 			} v24
-			@Beep loop rand ({ace} {egb} {ACE} {CEG} {EGB+} {A+C+E+} {GB+D+} {G+E+D+vB+vge}) _2 /6 ^12
+			@Beep loop rand ({ace} {egb} {ACE} {CEG} {EGB+} {A+C+E+} {GB+D+} {A+E+C+B+ae}) _2 /2 ^12
 		>
 		<
 			@Ding {BvgevEv}*8 _2.4 ||
@@ -58,7 +33,7 @@
 				{ {evgBvg}x2}
 				{ {fgBvD} {ABvDEv} }
 			} v24
-			@Beep loop rand ({evgBv} {gBvD} {BvDF} {EvGB+v} {DFA+} {GB+vD+} {G+F+E+vD+vB+A+G}) _2 /6 ^12
+			@Beep loop rand ({evgBv} {gBvD} {BvDF} {EvGB+v} {DFA+} {GB+vD+} {G+F+E+vD+B+vA+G}) _2 /2 ^12
 		>
 	}
 }/ 4.7 v1 
