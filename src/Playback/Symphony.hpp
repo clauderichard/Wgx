@@ -3,7 +3,7 @@
 
 #include "Wave/IWaveSampler.hpp"
 #include "Wave/Synthesizer.hpp"
-#include "Gen/IEgg.hpp"
+#include "Egg/IEgg.hpp"
 #include "Common/Crash.hpp"
 #include "Common/SampleRate.hpp"
 #include <iostream>

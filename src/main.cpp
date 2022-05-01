@@ -1,18 +1,10 @@
 #include "Common/All.hpp"
 #include "Util/TextFileReader.hpp"
-//#include "Gen/IEgg.hpp"
-//#include "Genlang/EventSpecies.hpp"
-//#include "Wavelang/ValuesSets.hpp"
 #include "Wavelang/WaveLang.hpp"
-//#include "Wave/Synthesizer.hpp"
-#include "Genlang/GenLang.hpp"
-//#include "Wavelang/JurassicWorld.hpp"
-//#include "Wavelang/JurassicUniverse.hpp"
-//#include "Wavelang/Rex.hpp"
+#include "Egglang/Egglang.hpp"
 #include "Playback/Symphony.hpp"
 #include "Playback/WavSoundStream.hpp" 
 #include "Playback/WavFileWriter.hpp"
-//#include "Wave/IVoice.hpp"
 #include <vector>
 #include <iostream>
 #include <fstream>
@@ -162,6 +154,7 @@ int mainPlaybackTry2()
 				if (music.getStatus() == sf::Sound::Stopped)
 					break;
 			}
+			cout << endl << "Done." << endl;
 		}
 		catch (const std::exception &e)
 		{
@@ -178,6 +171,7 @@ int mainPlaybackTry2()
 	size_t numSamples = size_t(WGX_SAMPLESPERSECOND * numSeconds);
 	writeWavFile(symph, WGX_SAMPLESPERSECOND, numSamples, outputWavFileName);
 
+	cout << endl << "Done." << endl;
 	return 0;
 }
 

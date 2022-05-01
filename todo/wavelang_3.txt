@@ -17,9 +17,10 @@ Wavelang 3.0 Concept
 	
 _ Wavelang 3.0
 	/ TrexNoise (44100 rands from 0 to 1)
-	_ tokenize line-by-line, don't build string first
+	/ tokenize line-by-line, don't build string first
 	_ voice & effect keywords
-	_ move default parks (freq etc) to scripts
+	/ move default parks (freq etc) to scripts
+	_ Named parks with arguments
 	_ use bof/eof instead of triple-squiggles
 	_ "import" statements
 	_ import Worlds
