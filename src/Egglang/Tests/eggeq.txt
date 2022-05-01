@@ -1,0 +1,110 @@
+{}
+<>
+
+<ab2c>
+{a0_1 b0_2 c}
+
+<ab2|c>
+{a0_1 b0_2 c '}
+
+{a   b  c  c^ d ev e f  g   g^   A    B+ }
+{bv2 cv b^ dv d d^ e e^ Av2 a^11 a^12 a^26 }
+
+{abc}
+{def}v5
+
+{abcde}
+{defgA}v5
+
+{ae}
+<a{'e}||>
+
+{g2 f5 a3_4 e}
+<g*2 {'2f*5} {'7a*4} {'*10 e}>
+
+loop {cd}
+{cdcdcd}x100
+
+{a'de}
+<a {'2de}>
+
+{ cycle(ab) c }x3
+{ ac bc ac}
+
+{ab || c}
+{ab}
+
+<{ab} c || {de}>
+{<acd>b}
+
+{{ab|c}{de}}
+{ab<cd>e}
+
+{{a|b||c}{de}}
+{a<bd>e}
+
+rand(d)x7
+{ddddddd}
+
+{cycle({a|b} c)} x4
+{a<bc>a<bc>}
+
+{aa} << {{cg}/2}
+{cgcg}/2
+
+{cde} << {{ae}/2}
+{cgdAeB}/2
+
+{cd2e} << {{ae}/2}
+{cg {dA}*2 eB}/2
+
+{ad} << {ae}
+{a<ed>A}
+
+{a'} << {ae}
+{ae}
+
+{d'f}*4_1 << {aeve}
+{dg^A ' '4 fBC}
+
+{d'f}*4 << {{a ev e}/4}
+{dg^A ' '4 fBC}
+
+{d'f}*4 << {{a ev e}/3}
+{dg^A '3 fBC}*4/3
+
+{abcdefgA} << {ae}
+{a<eb><f^c><gd><Ae><Bf><Cg><DA>E}
+
+{a {b|c}}
+{ab|c}
+
+{ {a|b} '}
+{ a b }
+
+{ {a|b} {c|d}}
+{ a <bc> | d }
+
+{ {a|bcd} {e|f} ABC}
+{ a <be> <cfA> <dB> C}
+
+{ {a|bcd} {e|E} {f|gA} BC}
+{ a <be> <cEf> <dgB> <AC>}
+
+{{{{a|b}}}c}
+{a<bc>}
+
+{{{{a|b}{c|d}}}e}
+{a<bc><de>}
+
+@a {a}
+{@a a}
+
+@b1 {c @a d}
+{{@b1 c} {@a d}}
+
+@dD {@c2c a*2 {bx3}}
+{@c2c a2  @dD {bbb}}
+
+cycle(ac)x7 << {{a cycle(eAE)}/2}
+{ae cC aE cg aA cG ae}/2

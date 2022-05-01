@@ -1,0 +1,27 @@
+
+Wgx future Concepts
+* Genlang should have some more advanced operators.
+	Like combining property reference with function (e.g. duration += some value)
+* Some events should change some wave parameters.
+* Some events should change parameters of other events.
+* Genlang should have "gradients" enabled for pitch bend.
+	Syntax may be similar to that of Ukz.
+	Syntax may look like the bezier syntax in Wavelang.
+	Pitch bend should not be limited to 2 semitones!
+* There should be one more kind of events: Assignment.
+	An Assignment has a name and a real value. It assigns the "variable"
+	of that name to the specified value.
+	Syntax for Assignments to be determined.
+* Wavelang should enable referencing of
+	named variables (define the syntax for this in Wavelang),
+	and Genlang can assign to the same variables in memory.
+
+_ Wgx future tasks
+	_ Refactor ops to enable _*, pitch/, etc.
+	_ Pull Trex, use it from gradients
+	_ Var assignment events (name := egg ?)
+	_ Var-referencing events ($name)
+	_ Real-Var assignment events (name := double)
+	_ Wavelang var-references (modified by eggs)
+	_ ...
+	
