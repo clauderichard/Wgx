@@ -6,7 +6,6 @@ using namespace std;
 
 Instrument::Instrument(shared_ptr<IVoice> voice)
     : _voiceWorkers(CAPACITY_VOICES_PER_INSTRUMENT),
-    //   _listeningEffect(listeningEffect),
       _listeningEffects(CAPACITY_EFFECTS_PER_INSTRUMENT)
 {
     for(size_t i=0; i<CAPACITY_VOICES_PER_INSTRUMENT; i++)

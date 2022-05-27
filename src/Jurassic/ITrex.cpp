@@ -9,13 +9,6 @@ ITrex::~ITrex()
 
 void ITrex::reset() {}
 
-// ITrex *ITrex::copy(RealpMap &m)
-// {
-// 	ITrex *ret = copy();
-// 	ret->updateArgs(m);
-// 	return ret;
-// }
-
 ITrex *ITrex::copyAndAddToMap(RealpMap &m)
 {
 	ITrex *ret = copy();

@@ -38,7 +38,6 @@ class WaveLang
   public:
     WaveLang();
     Value decodeIntoValue(const string &code);
-    // WaveLangResult decodeFile(const string &filename);
     Language *getLang();
 
   private:

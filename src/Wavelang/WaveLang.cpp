@@ -13,7 +13,6 @@ enum WaveLangTkTypes
 {
 	WINT = 1,
 	WREAL,
-	WNULL,
 	WPITCH,
 	WDURATION,
 	WPARK,
@@ -53,11 +52,8 @@ enum WaveLangTkTypes
 	WRPAREN,
 	WLBRACK,
 	WRBRACK,
-	// WLARG,
-	// WRARG,
 	WLSQUIGGLE,
 	WRSQUIGGLE,
-	//WLARROW,
 	WRARROW,
 	WLSQUIGGLE3,
 	WRSQUIGGLE3,
@@ -153,13 +149,10 @@ WaveLang::WaveLang()
 	_language.addWord(")", WRPAREN);
 	_language.addWord("[", WLBRACK);
 	_language.addWord("]", WRBRACK);
-	// _language.addWord("<", WLARG);
-	// _language.addWord(">", WRARG);
 	_language.addWord("{", WLSQUIGGLE);
 	_language.addWord("}", WRSQUIGGLE);
 	_language.addWord("voice", WVOICE);
 	_language.addWord("effect", WEFFECT);
-	//_language.addWord("<-", WLARROW);
 	_language.addWord("->", WRARROW);
 	_language.addWord("{{{", WLSQUIGGLE3);
 	_language.addWord("}}}", WRSQUIGGLE3);
@@ -183,16 +176,6 @@ WaveLang::WaveLang()
 	_language.addWordValue("~~", WBEZIERLINK, BezierLinkType::CUBICFLAT);
 
 	////////////////////////////////////////////////
-	// Constants
-	double pi = 3.14159265358979323975;
-	// registerConstant("pi", pi);
-	// registerConstant("tau", 2 * pi);
-	// registerConstant("baseFreq", 440);
-	// registerConstant("semitoneFreqFactor", std::pow(2.0, 1.0 / 12));
-	_language.addWordValue<crealp>("null", WNULL, NULL);
-	_language.addUnaryParseRule(WREXATOM, WNULL);
-
-	////////////////////////////////////////////////
 	// Variables
 
 	registerVariable(KEYWORD_INPUT_PITCH, 0);
@@ -214,9 +197,6 @@ WaveLang::WaveLang()
 	registerBinOp("/", 3, realfunc2_div);
 	registerBinOp("**", 4, realfunc2_pow);
 
-	// registerBinOp(">", 1, realfunc2_gt);
-	// registerBinOp("<", 1, realfunc2_lt);
-
 	////////////////////////////////////////////////
 	// Numbers
 
@@ -229,8 +209,6 @@ WaveLang::WaveLang()
 	_language.addCharStar(charIsAlphanumeric, WNAME, inName);
 	TkState inJName = _language.addCharStar(charIsAlphaUpper, WJNAME);
 	_language.addCharStar(charIsAlphanumeric, WJNAME, inJName);
-	//	_language.addCharStar(charIsAlphaLower, WNAME);
-	//	_language.addCharStar(charIsAlphanumeric, WJNAME, WJNAME);
 
 	_language.addParseRule(WREXATOM, {WNAME}, {0}, rexVarFromName);
 	_language.addUnaryParseRule(WREAL, WINT);
@@ -279,10 +257,7 @@ WaveLang::WaveLang()
 	_language.addParseRule(WREXATOM, {WPREV,WREXATOM}, {1}, wPrevRex);
 	_language.addParseRule(WREXATOM, {WTIMER}, {}, wTimerRex);
 	_language.addParseRule(WREXATOM, {WPHASER, WREXATOM}, {1}, wPhaseRex);
-	// _language.addParseRule(WREXATOM, {WECHO, WREAL, WREXATOM, WCOMMA, WREXATOM}, {1, 2, 4}, wEchoRex);
-	// _language.addParseRule(WREXATOM, {WECHOES, WREAL, WREXATOM, WCOMMA, WREXATOM}, {1, 2, 4}, wEchoesRex);
 	_language.addParseRule(WREXATOM, {WDELAY, WREXATOM, WCOMMA, WREXATOM}, {1, 3}, wDelayRex);
-	// _language.addParseRule(WREX, {WREXATOM, WQUESTION, WREXATOM, WCOLON, WREXATOM}, {0, 2, 4}, wConditionalRex);
 
 	////////////////////////////////////////////////
 	// Bezier curve
@@ -374,11 +349,5 @@ Value WaveLang::decodeIntoValue(const string &code)
 {
 	return _language.interpret(code);
 }
-
-// WaveLangResult WaveLang::decodeFile(const string &filename)
-// {
-// 	Value res = _language.interpretFile(filename);
-// 	return res.get<WaveLangResult>();
-// }
 
 ////////////////////////////////////////////////

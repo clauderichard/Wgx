@@ -32,7 +32,6 @@ class ITrex
 	virtual void initialize();
 	////////////////////////////////
 
-	// ITrex *copy(RealpMap &);
 	ITrex *copyAndAddToMap(RealpMap &);
 	void updateArgs(RealpMap &);
 	crealp getResult();

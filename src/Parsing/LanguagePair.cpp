@@ -49,14 +49,11 @@ pair<vector<Token>,vector<Token>> LanguagePair::tokenizeFile(
 	string line;
 	if (myfile.is_open())
 	{
-		//bool newl = false;
 		while (getline(myfile, line))
 		{
             if (_lineIsDelimiter(line))
             {
                 useLang1 = false;
-                // useLang = _lang2;
-                // useTokens = &ret.second;
             }
 			else if (!langpairIsCommentLine(line))
 			{

@@ -75,9 +75,6 @@ JurassicVoice *JurassicVoice::copy()
 	}
 	FASTFOR_SIZE(_trexesArray, p)
 	{
-		// auto newTrex = (*p)->copyAndAddToMap(m);
-		// shared_ptr<ITrex> newTrexShared2(newTrex);
-		// ret->addRuntimeTrex(newTrexShared2);
 		shared_ptr<ITrex> newTrex((*p)->copy());
 		m.set((*p)->getResult(), newTrex->getResult());
 		ret->addRuntimeTrex(newTrex);
@@ -105,11 +102,6 @@ const double *JurassicVoice::getParam(size_t index)
 	return &_params[index];
 }
 
-// void JurassicVoice::addPreTrex(ITrex *trex)
-// {
-// 	_preTrexesArray.pushBack(trex);
-// }
-
 void JurassicVoice::resetParams(size_t numSamples, initializer_list<double> params)
 {
 	if (numSamples == 0)
@@ -134,11 +126,6 @@ void JurassicVoice::resetParams(size_t numSamples, initializer_list<double> para
 
 	reset();
 }
-
-// void JurassicVoice::addTrex(ITrex *trex)
-// {
-// 	_trexesArray.pushBack(trex);
-// }
 
 void JurassicVoice::genSample()
 {

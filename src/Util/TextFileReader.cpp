@@ -27,11 +27,8 @@ string readFile(const string &filepath)
 	ifstream myfile(filepath);
 	stringstream sstr;
 	string line;
-	//size_t sectionLineNumber = 1;
-	//bool isInsideComment = false;
 	if (myfile.is_open())
 	{
-		//bool newl = false;
 		while (getline(myfile, line))
 		{
 			sstr << '\n';

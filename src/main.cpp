@@ -106,9 +106,9 @@ void wgxExecuteBetweenLanguages(Value &waveValue)
 	Egglang::initVoiceIndexes(wresult._instrIndexes);
 }
 
-int mainPlaybackTry2()
+int mainPlayback()
 {
-	cout << "mainPlaybackTry2" << endl;
+	cout << "mainPlayback" << endl;
 
 	// Interpret Wave/Egg script
 	string wgxScriptName = g_mainArgs[WGX_MAINARG_WGXSCRIPTNAME];
@@ -287,76 +287,7 @@ class TrexPhas : public ITrex
 	crealp _freq;
 };
 
-void mainRexTry()
-{
-	Rex a(new RexVarName("a"));
-	Rex b(new RexVarName("b"));
-	Rex five(new RexConst(5));
-
-	Rex x = Rex::getCustomFunParam(0);
-
-	vector<Rex> args{five};
-	Rex invFive(new RexCustomFunCall("f", args));
-
-	vector<Rex> args2{invFive};
-	Rex invInvFive(new RexCustomFunCall("f", args2));
-
-	Rex v = Rex::getInputVar(0, 0);
-	Rex inL = Rex::getInputVar(1, 0);
-
-	vector<Rex> args3{v};
-	Rex invV(new RexCustomFunCall("f", args3));
-
-	vector<Rex> args4{v};
-	shared_ptr<ITrex> invTrex(new TrexFunk1(realfunc1_inv, v.getResultPlaceholder()));
-	Rex q(new RexTrex(invTrex, args4));
-
-	shared_ptr<ITrex> phaseTrex(new TrexPhas(v.getResultPlaceholder()));
-	Rex phase(new RexTrex(phaseTrex, vector<Rex>()));
-
-	vector<Rex> args5{phase};
-	shared_ptr<ITrex> negPhaseTrex(new TrexFunk1(realfunc1_neg, phase.getResultPlaceholder()));
-	Rex negPhase(new RexTrex(negPhaseTrex, args5));
-
-	vector<Rex> args6{phase};
-	shared_ptr<ITrex> negInLTrex(new TrexFunk1(realfunc1_neg, inL.getResultPlaceholder()));
-	Rex negInL(new RexTrex(negInLTrex, args6));
-
-	EquationSet eqns;
-	// eqns.set("out", a);
-	eqns.set("b", b);
-	eqns.set("outF", invInvFive);
-	eqns.set("outV", invV);
-	eqns.set("outQ", q);
-	eqns.set("out", negPhase);
-	eqns.set("outR", negInL);
-
-	vector<string> outNames{"out","outR"};
-	auto processResult = eqns.process(outNames);
-
-	JurassicVoice voice(2, processResult);
-	JurassicEffect effect(processResult);
-	// voice._forLeft = processResult._resultsMap[eqns.get("negPhase").getResultPlaceholder()];
-	// voice.resetParams(2, {7,8});
-	voice.resetParams(2, {7,8});
-	voice.genSample();
-	// effect.initialize();
-	effect.computeInputs();
-	effect.genSample();
-
-	double v1 = 7;
-
-	processResult._resultsMap.set(v.getResultPlaceholder(), &v1);
-	for(auto trex : processResult._resultTrexes)
-	{
-		trex->updateArgs(processResult._resultsMap);
-	}
-
-}
-
 int main(int argc, char *argv[])
 {
-	//mainRexTry();
-	//return 0;
-	return mainPlaybackTry2();
+	return mainPlayback();
 }

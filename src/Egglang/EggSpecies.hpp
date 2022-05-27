@@ -205,7 +205,6 @@ class EggMemberModify : public IEggEventModify
 		void (*fun)(M &, A &),
 		A &arg)
 		: IEggEventModify(egg),
-		  //_evCopy(new Event()),
 		  _getter(getter),
 		  _fun(fun),
 		  _arg(arg)

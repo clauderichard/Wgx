@@ -80,10 +80,6 @@ void printRealFunc(realfunc2 f)
     {
         cout << "f2";
     }
-    // else if (f == std::sin)
-    // {
-    //     cout << "1/";
-    // }
 }
 
 ////////////////////////////////////////////////

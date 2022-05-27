@@ -16,15 +16,9 @@ RexConst::RexConst(double val)
 
 RexConst::~RexConst() {}
 
-// shared_ptr<IRexImpl> RexConst::func1(realfunc1 f, shared_ptr<IRexImpl> self)
-// {
-//     return make_shared<RexConst>(f(_val));
-// }
-
 crealp RexConst::processImpl(RexProcessContext &prog, Rex self)
 {
     return _resultPlaceholder;
-    // return g_valuesBank.getConstant(_val);
 }
 
 ////////////////////////////////////////////////

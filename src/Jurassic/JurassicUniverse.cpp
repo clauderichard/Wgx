@@ -151,13 +151,6 @@ void JurassicUniverse::computeVoiceNames()
 			CRASH("Voice invalid")
 		}
 	}
-	// for (auto &nw : _worlds)
-	// {
-	// 	if (nw.second->isValidVoice())
-	// 	{
-	// 		_tempVoiceNames.push_back(nw.first);
-	// 	}
-	// }
 }
 
 void JurassicUniverse::computeUsedEffectNames()

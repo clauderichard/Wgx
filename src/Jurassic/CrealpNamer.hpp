@@ -45,10 +45,8 @@ class CrealpNamer
 		if (g_valuesBank.isConst(x))
 		{
 			stringstream s;
-			//s << "c";
 			s << *x;
 			return s.str();
-			// return "c";
 		}
 		try
 		{

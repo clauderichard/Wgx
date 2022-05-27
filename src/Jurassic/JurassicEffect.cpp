@@ -6,10 +6,6 @@
 using namespace std;
 
 
-// JurassicEffect::JurassicEffect()
-// {
-// }
-
 JurassicEffect::JurassicEffect(RexProcessContext &prog)
 {
 	prog._resultsMap.set(Rex::getInputVar(SynthInputVarType::EFFECTINPUTVAR, 0).getResultPlaceholder(), &_leftInput);

@@ -123,10 +123,6 @@ void eggeq(const string & x, const string & y, int numE)
 
 int main(int argc, char **argv)
 {
-	//eggeq("{abc}", "{def}v5", 99);
-	//eggeq("{abcde}", "{defgA}v5", 99);
-	//eggeq("{ae}", "<a{'e}||>", 99);
-	
 	map<string,size_t> voi;
 	voi["a"] = 0;
 	voi["b1"] = 1;

@@ -46,7 +46,6 @@ enum EgglangTkTypes
 
 Egglang::Egglang()
 	: _language(99)
-//_minUnusedTkType(GMAXLANGTKTYPES)
 {
 	actionSpeciesInitialize();
 

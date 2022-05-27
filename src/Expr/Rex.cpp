@@ -7,7 +7,6 @@
 void RexSubstitutions::set(Rex x, Rex newX)
 {
 	_subs[x.getResultPlaceholder()] = newX;
-    // _substitutions.emplace_back(x,newX);
 }
 
 Rex RexSubstitutions::get(Rex x)
@@ -21,14 +20,6 @@ Rex RexSubstitutions::get(Rex x)
 	{
 		return x;
 	}
-    // for(auto &sub : _substitutions)
-    // {
-    //     if (sub.first._impl.get() == x._impl.get())
-    //     {
-    //         return sub.second;
-    //     }
-    // }
-    // return x;
 }
 
 ////////////////////////////////////////////////
@@ -38,8 +29,6 @@ Rex::Rex()
 
 Rex::Rex(IRexImpl *impl)
     : _impl(impl) {}
-// Rex::Rex(shared_ptr<IRexImpl> impl)
-//     : _impl(impl) {}
 
 Rex::Rex(const Rex &other)
     : _impl(other._impl) {}

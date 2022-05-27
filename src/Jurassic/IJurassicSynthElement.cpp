@@ -19,14 +19,6 @@ IJurassicSynthElement::IJurassicSynthElement()
 
 IJurassicSynthElement::~IJurassicSynthElement()
 {
-	// FASTFOR_SIZE(_preTrexesArray, p)
-	// {
-	// 	delete *p;
-	// }
-	// FASTFOR_SIZE(_trexesArray, p)
-	// {
-	// 	delete *p;
-	// }
 }
 
 void IJurassicSynthElement::construct(RexProcessContext &prog)
@@ -104,18 +96,15 @@ void IJurassicSynthElement::updateAllArgs(RealpMap &m)
 	FASTFOR_SIZE(_preTrexesArray, p)
 	{
 		(*p)->updateArgs(m);
-		// (*p)->initialize();
 	}
 	FASTFOR_SIZE(_trexesArray, p)
 	{
 		(*p)->updateArgs(m);
-		// (*p)->initialize();
 	}
 }
 
 void IJurassicSynthElement::print(CrealpNamer &namer)
 {
-	//cout <<endl<< "  SynthElement pretrexes:" << endl;
 	FASTFOR_SIZE(_preTrexesArray, p)
 	{
 		crealp x = (*p)->getResult();

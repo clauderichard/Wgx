@@ -97,8 +97,6 @@ void ParseTree::print(const map<TkType, string> &tkTypeReprs, size_t spaces, boo
 	{
 		if (tok._type != TKTYPE_BOF && tok._type != TKTYPE_EOF)
 		{
-			//string tokstr = code.substr(tok._startIndex, tok._length);
-			//cout << " (\"" << tokstr << "\")";
 			cout << " (\"" << *tok._string << "\")";
 		}
 	}

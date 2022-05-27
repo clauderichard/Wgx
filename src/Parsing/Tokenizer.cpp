@@ -79,7 +79,6 @@ void TkAutomaton::step(char c)
 	}
 	TkState nextState = getTransit(_currentState, c);
 	_isDead = nextState == 0;
-	// _isDead = _currentState != 0 && nextState == 0;
 	_prevState = _currentState;
 	_currentState = nextState;
 }
@@ -150,14 +149,6 @@ TkState Tokenizer::addWord(const string &word,
 						   TkState fromState)
 {
 	return _automata[0]->addWord(word, type, fromState);
-	// TkState state = fromState;
-	// for (int i = 0; i < word.size(); i++)
-	// {
-	// 	char letter = word[i];
-	// 	state = moveOrCreateState(state, letter);
-	// }
-	// _stateToType[state] = type;
-	// return state;
 }
 
 TkState Tokenizer::addStar(bool (*charFunc)(char),

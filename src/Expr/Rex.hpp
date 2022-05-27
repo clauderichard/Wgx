@@ -23,7 +23,6 @@ class Rex
 
     Rex();
     Rex(IRexImpl *impl);
-    // Rex(shared_ptr<IRexImpl> impl);
     Rex(const Rex &other);
 
     Rex copyWithSubstitutions(RexSubstitutions &subs);
@@ -79,7 +78,6 @@ struct RexSubstitutions
     void set(Rex x, Rex newX);
     Rex get(Rex x);
 
-    //vector<pair<Rex,Rex>> _substitutions;
     map<crealp,Rex> _subs;
 };
 

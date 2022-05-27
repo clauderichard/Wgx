@@ -131,7 +131,6 @@ void Parser::addRule(TkType resultType,
 
 void Parser::initialize()
 {
-	//cout << "Parser initializing" << endl;
 	_matchingTree.clear();
 	topToNextTrans();
 	for (int rulI = 0; rulI < _rules.size(); rulI++)
@@ -140,7 +139,6 @@ void Parser::initialize()
 		_matchingTree
 			.addReversePath(rule._stackTypes, rulI);
 	}
-	//cout << "Parser initialized!" << endl;
 }
 
 void Parser::topToNextTrans()
