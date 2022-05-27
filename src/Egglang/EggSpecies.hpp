@@ -5,6 +5,7 @@
 #include "Common/Capacities.hpp"
 #include "Egg/Event.hpp"
 #include "Egg/IEgg.hpp"
+#include "EggExceptions.hpp"
 #include "IEggForker.hpp"
 #include "ActionSpecies.hpp"
 #include <vector>

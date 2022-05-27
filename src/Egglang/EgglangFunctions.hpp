@@ -2,7 +2,7 @@
 #include "Egg/IEgg.hpp"
 #include "EggSpecies.hpp"
 #include "EggForkerSpecies.hpp"
-#include "Wave/Synthesizer.hpp"
+#include "Wave/ISynthesizer.hpp"
 #include "Parsing/CharFunctions.hpp"
 #include <sstream>
 using namespace std;
@@ -56,7 +56,7 @@ Event gEventFromPitch(double &pitch)
 	ev._info._voiceIndex = 9999;
 	ev._info._pitch = pitch;
 	ev._info._isStart = false;
-	ev._action = g_genlangNoteAction;
+	ev._action = g_egglangNoteAction;
 	return ev;
 }
 
@@ -74,7 +74,7 @@ Event gEventSetIsStart(Event &ev)
 	return ev;
 }
 
-shared_ptr<IEgg> gGenFromEvent(Event &ev)
+shared_ptr<IEgg> gEggFromEvent(Event &ev)
 {
 	return make_shared<EggSingle>(ev);
 }
@@ -83,37 +83,20 @@ Event gRestEvent()
 {
 	Event ev;
 	ev._info._postLag = 1;
-	ev._action = g_genlangRestAction;
+	ev._action = g_egglangRestAction;
 	return ev;
 }
 
 size_t gVoiceIndexFromNameWithAt(const string &nameWithAt)
 {
 	string name = nameWithAt.substr(1);
-	return GenLang::getVoiceIndex(name);
+	return Egglang::getVoiceIndex(name);
 }
 
 ////////////////////////////////////////////////
 // Seq, Par
 
-enum ForkerElemType
-{
-	ForkerElemType_Egg,
-	ForkerElemType_OfficialEnd,
-	ForkerElemType_Death
-};
-struct ForkerElem
-{
-	ForkerElemType _type;
-	shared_ptr<IEgg> _egg;
-};
-
-vector<shared_ptr<IEgg>> gGensList(vector<shared_ptr<IEgg>> &gens)
-{
-	return gens;
-}
-
-shared_ptr<IEgg> gSeqFromGens(vector<ForkerElem> &elems)
+shared_ptr<IEgg> gSeqFromEggs(vector<ForkerElem> &elems)
 {
 	auto ret = make_shared<EggSeq>();
 	for (auto fe : elems)
@@ -134,7 +117,7 @@ shared_ptr<IEgg> gSeqFromGens(vector<ForkerElem> &elems)
 	return ret;
 }
 
-shared_ptr<IEgg> gParFromGens(vector<ForkerElem> &elems)
+shared_ptr<IEgg> gParFromEggs(vector<ForkerElem> &elems)
 {
 	auto ret = make_shared<EggPar>();
 	for (auto fe : elems)
@@ -155,32 +138,32 @@ shared_ptr<IEgg> gParFromGens(vector<ForkerElem> &elems)
 	return ret;
 }
 
-shared_ptr<IEgg> gLoopFromGens(shared_ptr<IEgg> &gen)
+shared_ptr<IEgg> gLoopFromEgg(shared_ptr<IEgg> &egg)
 {
-	auto ret = make_shared<EggForever>(gen);
+	auto ret = make_shared<EggForever>(egg);
 	return ret;
 }
 
-shared_ptr<IEgg> gRandFromGens(
-	vector<shared_ptr<IEgg>> &gens)
+shared_ptr<IEgg> gRandFromEggs(
+	vector<shared_ptr<IEgg>> &eggs)
 {
-	auto ret = make_shared<EggRand>(gens);
+	auto ret = make_shared<EggRand>(eggs);
 	return ret;
 }
 
-shared_ptr<IEgg> gCycleFromGens(
-	vector<shared_ptr<IEgg>> &gens)
+shared_ptr<IEgg> gCycleFromEggs(
+	vector<shared_ptr<IEgg>> &eggs)
 {
 	auto nextEggIndex = make_shared<size_t>(0);
-	auto ret = make_shared<EggCycle>(gens, nextEggIndex);
+	auto ret = make_shared<EggCycle>(eggs, nextEggIndex);
 	return ret;
 }
 
-shared_ptr<IEgg> gVoiceGen(
-	size_t &v, shared_ptr<IEgg> &gen)
+shared_ptr<IEgg> gVoiceNameGen(
+	size_t &v, shared_ptr<IEgg> &egg)
 {
 	return make_shared<EggMemberModify<size_t, size_t>>(
-		gen, &EventInfo::refVoiceIndex, takesecondIfNegSizet, v);
+		egg, &EventInfo::refVoiceIndex, takesecondIfNegSizet, v);
 }
 
 ForkerElem gEggElem(shared_ptr<IEgg> &egg)
@@ -213,87 +196,87 @@ shared_ptr<IEgg> gMelodyInject(
 ////////////////////////////////////////////////
 // Operators (foreach-event modifiers)
 
-shared_ptr<IEgg> gTimeExpandGen(
-	shared_ptr<IEgg> &gen,
+shared_ptr<IEgg> gTimeExpandEgg(
+	shared_ptr<IEgg> &egg,
 	double &arg)
 {
 	return make_shared<EggTimeFunc>(
-		gen, mul, arg);
+		egg, mul, arg);
 }
 
-shared_ptr<IEgg> gTimeContractGen(
-	shared_ptr<IEgg> &gen,
+shared_ptr<IEgg> gTimeContractEgg(
+	shared_ptr<IEgg> &egg,
 	double &arg)
 {
 	double a = 1 / arg;
-	return gTimeExpandGen(gen, a);
+	return gTimeExpandEgg(egg, a);
 }
 
-shared_ptr<IEgg> gRepeatGen1(
-	shared_ptr<IEgg> &gen,
+shared_ptr<IEgg> gRepeatEgg1(
+	shared_ptr<IEgg> &egg,
 	double &arg)
 {
 	size_t times = (size_t)(arg);
 	return make_shared<EggRepeat>(
-		gen, times);
+		egg, times);
 }
 
 ////////////////////////////////////////////////
 // Transpose Operators
 
-shared_ptr<IEgg> gSharpGen1(
-	shared_ptr<IEgg> &gen,
+shared_ptr<IEgg> gSharpEgg1(
+	shared_ptr<IEgg> &egg,
 	double &arg)
 {
 	return make_shared<EggMemberModify<double, double>>(
-		gen, &EventInfo::refPitch, add, arg);
+		egg, &EventInfo::refPitch, add, arg);
 }
 
-shared_ptr<IEgg> gFlatGen1(
-	shared_ptr<IEgg> &gen,
+shared_ptr<IEgg> gFlatEgg1(
+	shared_ptr<IEgg> &egg,
 	double &arg)
 {
 	double a = -arg;
-	return gSharpGen1(gen, a);
+	return gSharpEgg1(egg, a);
 }
 
-shared_ptr<IEgg> gSharpGen0(
-	shared_ptr<IEgg> &gen)
+shared_ptr<IEgg> gSharpEgg0(
+	shared_ptr<IEgg> &egg)
 {
 	double a = 1;
-	return gSharpGen1(gen, a);
+	return gSharpEgg1(egg, a);
 }
 
-shared_ptr<IEgg> gFlatGen0(
-	shared_ptr<IEgg> &gen)
+shared_ptr<IEgg> gFlatEgg0(
+	shared_ptr<IEgg> &egg)
 {
 	double a = -1;
-	return gSharpGen1(gen, a);
+	return gSharpEgg1(egg, a);
 }
 
-shared_ptr<IEgg> gOctavePlusGen(
-	shared_ptr<IEgg> &gen)
+shared_ptr<IEgg> gOctavePlusEgg(
+	shared_ptr<IEgg> &egg)
 {
 	double a = 12;
-	return gSharpGen1(gen, a);
+	return gSharpEgg1(egg, a);
 }
 
-shared_ptr<IEgg> gOctaveMinusGen(
-	shared_ptr<IEgg> &gen)
+shared_ptr<IEgg> gOctaveMinusEgg(
+	shared_ptr<IEgg> &egg)
 {
 	double a = -12;
-	return gSharpGen1(gen, a);
+	return gSharpEgg1(egg, a);
 }
 
 ////////////////////////////////////////////////
 // Duration Operators
 
-shared_ptr<IEgg> gDurSetGen(
-	shared_ptr<IEgg> &gen,
+shared_ptr<IEgg> gDurSetEgg(
+	shared_ptr<IEgg> &egg,
 	double &arg)
 {
 	return make_shared<EggMemberModify<double, double>>(
-		gen, &EventInfo::refDuration, takesecond, arg);
+		egg, &EventInfo::refDuration, takesecond, arg);
 }
 
 ////////////////////////////////////////////////

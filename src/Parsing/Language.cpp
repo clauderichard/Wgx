@@ -9,7 +9,7 @@ using namespace std;
 
 Language::Language(size_t tkStatesCapacity)
 	: _unusedRuleId(1),
-	  _unusedTkType(-11)
+	  _unusedTkType(TKTYPE_EOF-1)
 {
 }
 
@@ -78,39 +78,30 @@ bool langIsCommentLine(const string &line)
 	return false;
 }
 
-Value Language::interpretFile(const string &filepath)
+Value Language::interpret(const string &code)
 {
 	vector<Token> tokens;
-	ifstream myfile(filepath);
-	string line;
-	//size_t sectionLineNumber = 1;
-	//bool isInsideComment = false;
-	if (myfile.is_open())
-	{
-		//bool newl = false;
-		while (getline(myfile, line))
-		{
-			if (!langIsCommentLine(line))
-			{
-				_tokenizer.tokenizeLine(tokens,line);
-			}
-		}
-	}
-	else
-	{
-		throw range_error("File not found");
-	}
-	//_tokenizer.tokenizeLine(tokens, code);
-	// auto tokens = _tokenizer.tokenize(code);
+    Token bofToken;
+    bofToken._type = TKTYPE_BOF;
+    tokens.push_back(bofToken);
+
+	_tokenizer.tokenizeLine(tokens, code);
+	
+    Token eofToken;
+    eofToken._type = TKTYPE_EOF;
+    tokens.push_back(eofToken);
+
 	auto tree = _parser.parse(tokens);
 	return _traverser.traverse(tree);
 }
 
-Value Language::interpret(const string &code)
+void Language::tokenizeLine(vector<Token> &tokens, const string &line)
 {
-	vector<Token> tokens;
-	_tokenizer.tokenizeLine(tokens, code);
-	// auto tokens = _tokenizer.tokenize(code);
+	_tokenizer.tokenizeLine(tokens, line);
+}
+
+Value Language::interpret(vector<Token> &tokens)
+{
 	auto tree = _parser.parse(tokens);
 	return _traverser.traverse(tree);
 }

@@ -5,19 +5,19 @@
 #include "Common/Capacities.hpp"
 #include "IEggForker.hpp"
 #include "ActionSpecies.hpp"
+#include "EggExceptions.hpp"
 #include <vector>
 #include <memory>
 using namespace std;
 
 // //////////////////////////////////////////////
 
-class EggForever:public IEggForker
+class EggForever : public IEggForker
 {
   public:
 	EggForever(shared_ptr < IEgg > egg)
-	:IEggForker({egg->deepcopy()})
 	{
-		for (size_t i = 1; i < EGG_FOREVER_THREADS; i++)
+		for (size_t i = 0; i < EGG_FOREVER_THREADS; i++)
 		{
 			addPart(egg->deepcopy());
 		}
@@ -46,23 +46,22 @@ class EggForever:public IEggForker
 
 // //////////////////////////////////////////////
 
-class EggRepeat:public IEggForker
+class EggRepeat : public IEggForker
 {
   public:
-	EggRepeat(shared_ptr < IEgg > egg, size_t times):IEggForker(
-																   {
-																   egg}
-	), _times(times), _timesDone(0)
+	EggRepeat(shared_ptr < IEgg > egg, size_t times)
+		: _times(times),
+		  _timesDone(0)
 	{
-		for (size_t i = 1; i < EGG_REPEAT_MINTHREADS; i++)
+		for (size_t i = 0; i < EGG_REPEAT_MINTHREADS; i++)
 		{
 			addPart(egg->deepcopy());
 		}
 	}
 
-	shared_ptr < IEgg > deepcopy()
+	shared_ptr<IEgg> deepcopy()
 	{
-		return make_shared < EggRepeat > (_threads[0]._egg->deepcopy(), _times);
+		return make_shared<EggRepeat>(_threads[0]._egg->deepcopy(), _times);
 	}
 
 	void onStart()
@@ -257,9 +256,9 @@ class EggMelodyInject:public IEggForker
 	
 	void onThreadEvent(size_t threadIndex, Event &e)
 	{
-		if(threadIndex==0 && e._action == g_genlangNoteAction)
+		if(threadIndex==0 && e._action == g_egglangNoteAction)
 		{
-			e._action = g_genlangRestAction;
+			e._action = g_egglangRestAction;
 			// Start a thread of RHS transposed & expanded
 			size_t ti = _nextThreadIndex;
 			if (_threads[ti]._isPlaying)

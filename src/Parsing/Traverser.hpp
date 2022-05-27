@@ -156,6 +156,35 @@ struct TravNodeFunc3 : public ITravNodeInstruction
 
 ////////////////////////////////////////////////
 
+template <typename A>
+struct TravNodeFuncListIdentity : public ITravNodeInstruction
+{
+	PrRuleId _delimRuleId;
+	TravNodeFuncListIdentity(PrRuleId delimRuleId)
+		: _delimRuleId(delimRuleId) {}
+	void traverseStarRule(
+		vector<A> &argVec,
+		ITraverser *trav,
+		ParseTree tree)
+	{
+		if (tree.getRuleId() == _delimRuleId)
+		{
+			return;
+		}
+		traverseStarRule(argVec, trav, tree.getChild(0));
+		argVec.push_back(trav->traverse(tree.getChild(1)).get<A>());
+	}
+	Value traverse2(ITraverser *trav,
+					ParseTree tree)
+	{
+		vector<A> argVec;
+		traverseStarRule(argVec, trav, tree.getChild(0));
+		return Value::make<vector<A>>(argVec);
+	}
+};
+
+////////////////////////////////////////////////
+
 template <typename R, typename A>
 struct TravNodeFuncList1 : public ITravNodeInstruction
 {
@@ -184,6 +213,38 @@ struct TravNodeFuncList1 : public ITravNodeInstruction
 		vector<A> argVec;
 		traverseStarRule(argVec, trav, tree.getChild(0));
 		return Value::make<R>(_f(argVec));
+	}
+};
+
+////////////////////////////////////////////////
+
+template <typename A>
+struct TravNodeFuncListDelimIdentity : public ITravNodeInstruction
+{
+	PrRuleId _initRuleId;
+	TravNodeFuncListDelimIdentity(PrRuleId initRuleId)
+		: _initRuleId(initRuleId) {}
+		  
+	void traverseStarRule(
+		vector<A> &veca,
+		ITraverser *trav,
+		ParseTree tree)
+	{
+		if (tree.getRuleId() == _initRuleId)
+		{
+			veca.push_back(trav->traverse(tree.getValuedChild(0)).get<A>());
+			return;
+		}
+		traverseStarRule(veca, trav, tree.getChild(0));
+		veca.push_back(trav->traverse(tree.getChild(2)).get<A>());
+	}
+	
+	Value traverse2(ITraverser *trav,
+					ParseTree tree)
+	{
+		vector<A> veca;
+		traverseStarRule(veca, trav, tree.getChild(0));
+		return Value::make<vector<A>>(veca);
 	}
 };
 
@@ -293,6 +354,14 @@ class Traverser : public ITraverser
 	void addNodePreFunc(PrRuleId ruleId,
 						void (*fun)());
 
+	template <typename A>
+	void addNodeListIdentity(PrRuleId initRuleId,
+						 	 PrRuleId listRuleId)
+	{
+		addNodeInstr(listRuleId, new TravNodeFuncListIdentity<A>(
+									 initRuleId));
+	}
+
 	template <typename R, typename A>
 	void addNodeListFunc(PrRuleId initRuleId,
 						 PrRuleId listRuleId,
@@ -300,6 +369,14 @@ class Traverser : public ITraverser
 	{
 		addNodeInstr(listRuleId, new TravNodeFuncList1<R,A>(
 									 initRuleId, f));
+	}
+
+	template <typename A>
+	void addNodeListDelim(PrRuleId initRuleId,
+						 PrRuleId appendRuleId)
+	{
+		addNodeInstr(appendRuleId, new TravNodeFuncListDelimIdentity<A>(
+									 initRuleId));
 	}
 
 	template <typename R, typename A, typename B>

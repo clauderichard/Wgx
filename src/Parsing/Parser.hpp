@@ -91,16 +91,11 @@ class Parser
   private:
     void topToNextTrans();
 	void initialize();
-	bool isNextTokenUnexpected(
-		ParseStack &stackTokens,
-		Token &nextInputTok);
+	bool isNextTokenUnexpected();
 	bool ruleWorksWithPreviousAndNext(
-		const ParseStack &stackTokens,
-		const ParserRule &rule,
-		const Token &nextToken) const;
-	int getRuleMatch(
-		const ParseStack &stackTokens,
-		Token &nextInputTok) const;
+		const ParserRule &rule) const;
+	int getRuleMatch() const;
+	TkType getNextTkType() const;
 
 	string getTkTypeRepr(TkType tkType) const;
 
@@ -113,6 +108,11 @@ class Parser
 
 	map<TkType,string> _tkTypeReprs;
 	bool _logSuccess;
+
+	// Parsing state stuff
+	vector<Token> *_inputTokens;
+	ParseStack _stackTokens;
+	size_t _nextInputIndex;
 
 };
 

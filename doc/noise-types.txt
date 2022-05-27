@@ -1,0 +1,105 @@
+I can make several styles of noise, with different parameters...
+
+I'll denote "r01" a random real number between 0 and 1.
+
+
+Pure White Noise
+    Each sample is a random number between 0 and 1.
+
+Low-freq White Noise
+    Like pure white noise, but for each N samples a r01 is generated.
+    For each bunch of N samples, you walk in a line from previous Y to next Y.
+    It's like a Bezier curve full of lines connected to each other.
+    The lines have the same x-width, points have random y-heights.
+
+Low-freq Sawtooth Noise
+    Each bunch of N samples has a r01 for nextY.
+    You walk in a line from 0 up to nextY.
+    The teeth have the same x-width, different random y-heights.
+
+Steps, random heights
+    Each N samples the Y jumps to a new r01.
+    Each step has the same x-width, different random y-height.
+
+Steps, random widths, alternating height
+    Step heights alternate between 0 and 1
+    Step widths are random.
+
+
+
+It's kind of like a TrexBezier but there's only 2 points...
+    and the points are set to a random number (or non-random)
+    each time you go back to the left.
+So maybe like a Phaser with an added step (not just 0 to 1).
+X goes from 0 to 1 with some frequency Freq.
+    Freq might be pure white noise.
+    Or Freq might be reset to a random number each time X is reset leftward.
+    Result is y from a line between 0,Y0 and 1,Y1, at x=X.
+    Y0 might be reset to another random every time X resets leftward.
+    Or Y0 could be set to Y1 every time X resets leftward (continuous random tri-waves).
+    Y1 could be reset to a rand at each X-reset.
+    Or Y1 could be set to Y0 at each X-reset.
+    Or... maybe Y0 alternates between 0 and 1 (binary) at each X-reset,
+    and Y1 is set to equal Y0.
+So, all these possibilities are essentially driven by events.
+    X-reset events especially.
+I could have a TrexLeftDetector or something.
+    Computes result only if arg went to the left.
+That, combined with TrexAlternator and TrexRandom, could be powerful.
+Also add TrexLine(x,y0,y1) to make the line.  W = line(X,Y0,Y1);
+    Actually, don't add TrexLine, you already have TrexBezier.
+    W = X [0,Y0 -- 1,Y1];
+And add TrexPrev to take previous value of another (so onleft event evaluates in correct order)
+
+Trexes to add, with their commands:
+    random          TrexRandom
+    onleft          TrexLeftDetector
+    alternateonleft TrexAlternator
+    prev            TrexPrev
+
+E.g.
+    X = phaser (onleft X, random(0.1,0.9));
+    Y0 = onleft X, random(-1,1);
+    Y1 = Y0;
+        steps of random height, random width
+
+    X = phaser timeFrac;
+    Y1 = onleft X, random(-1,1);
+    Y0 = onleft X, prev(Y1);
+        continuous lines of random height, random width.
+    
+
+
+
+Pure White Noise
+    wave = random(-1,1);
+
+Low-freq White Noise
+    X = phaser timeFrac;
+    Y1 = onleft X, random(-1,1);
+    Y0 = onleft X, prev(Y1);
+
+Low-freq Sawtooth Noise 1
+    X = phaser (onleft X, random(0.1,0.9));
+    Y0 = 0;
+    Y1 = 1;
+
+Low-freq Sawtooth Noise 2
+    X = phaser timeFrac;
+    Y0 = 0;
+    Y1 = onleft X, random(0,1);
+
+Steps, random heights, random widths
+    X = phaser (onleft X, random(0.1,0.9));
+    Y0 = onleft X, random(-1,1);
+    Y1 = Y0;
+
+Steps, random heights
+    X = phaser timeFrac;
+    Y0 = onleft X, random(-1,1);
+    Y1 = Y0;
+
+Steps, random widths, alternating height
+    X = phaser timeFrac;
+    Y0 = alternateonleft(X,-1,1);
+    Y1 = Y0;

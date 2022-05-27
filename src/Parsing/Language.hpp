@@ -159,6 +159,23 @@ class Language
 	////////////////////////////////////////
 	// Fancier Parser rules
 
+	template <typename A>
+	PrRuleId addListRule(TkType listType,
+						 TkType leftDelimiter,
+						 TkType elementType,
+						 TkType rightDelimiter)
+	{
+		TkType starType = _unusedTkType--;
+		PrRuleId initRuleId = _unusedRuleId++;
+		PrRuleId appendRuleId = _unusedRuleId++;
+		PrRuleId endRuleId = _unusedRuleId++;
+		_parser.addRule(starType, {leftDelimiter}, initRuleId, {});
+		_parser.addRule(starType, {starType, elementType}, appendRuleId, {0, 1});
+		_parser.addRule(listType, {starType, rightDelimiter}, endRuleId, {0});
+		_traverser.addNodeListIdentity<A>(initRuleId, endRuleId);
+		return endRuleId;
+	}
+
 	template <typename R, typename A>
 	PrRuleId addListRule(TkType listType,
 						 TkType leftDelimiter,
@@ -175,6 +192,25 @@ class Language
 		_parser.addRule(listType, {starType, rightDelimiter}, endRuleId, {0});
 		_traverser.addNodeListFunc(initRuleId, endRuleId, vecFun);
 		return endRuleId;
+	}
+
+	// S A (B A)* E
+	template <typename A>
+	PrRuleId addListRuleDelim(TkType listType,
+						  TkType startType,
+						  TkType elementType,
+						  TkType betweenType,
+						  TkType endType)
+	{
+		TkType buildType = _unusedTkType--;
+		PrRuleId initRuleId = _unusedRuleId++;
+		PrRuleId appendRuleId = _unusedRuleId++;
+		PrRuleId listRuleId = _unusedRuleId++;
+		_parser.addRule(buildType, {startType, elementType}, initRuleId, {1});
+		_parser.addRule(buildType, {buildType, betweenType, elementType}, appendRuleId, {});
+		_parser.addRule(listType, {buildType, endType}, listRuleId, {0});
+		_traverser.addNodeListDelim<A>(initRuleId, listRuleId);
+		return appendRuleId;
 	}
 
 	// S A (B A)* E
@@ -214,8 +250,10 @@ class Language
 	////////////////////////////////////////
 	// Process
 
-	Value interpretFile(const string &code);
+	// Value interpretFile(const string &code);
 	Value interpret(const string &code);
+	void tokenizeLine(vector<Token> &tokens, const string &line);
+	Value interpret(vector<Token> &tokens);
 
 	////////////////////////////////////////
 

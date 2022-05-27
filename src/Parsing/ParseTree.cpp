@@ -76,7 +76,7 @@ ParseTree ParseTree::getValuedChild(size_t index) const
 	return ParseTree(_node->_children[childIndex]);
 }
 
-void ParseTree::print(const map<TkType, string> &tkTypeReprs, size_t spaces) const
+void ParseTree::print(const map<TkType, string> &tkTypeReprs, size_t spaces, bool printChildren) const
 {
 	auto &tok = getToken();
 	for (size_t i = 0; i < spaces; i++)
@@ -95,7 +95,7 @@ void ParseTree::print(const map<TkType, string> &tkTypeReprs, size_t spaces) con
 
 	if (getNumChildren() == 0)
 	{
-		if (tok._type != TKTYPE_EOF)
+		if (tok._type != TKTYPE_BOF && tok._type != TKTYPE_EOF)
 		{
 			//string tokstr = code.substr(tok._startIndex, tok._length);
 			//cout << " (\"" << tokstr << "\")";
@@ -103,9 +103,12 @@ void ParseTree::print(const map<TkType, string> &tkTypeReprs, size_t spaces) con
 		}
 	}
 	cout << endl;
-	for (size_t i = 0; i < getNumChildren(); i++)
+	if (printChildren)
 	{
-		getChild(i).print(tkTypeReprs, spaces + 2);
+		for (size_t i = 0; i < getNumChildren(); i++)
+		{
+			getChild(i).print(tkTypeReprs, spaces + 2);
+		}
 	}
 }
 

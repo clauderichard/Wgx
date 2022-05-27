@@ -1,11 +1,6 @@
 #include "WaveLang.hpp"
 #include "Parsing/CharFunctions.hpp"
 #include "Wave/IVoice.hpp"
-#include "JurassicWorld.hpp"
-#include "JurassicUniverse.hpp"
-#include "Rex.hpp"
-#include "ValuesSets.hpp"
-//#include "TrexSpecies.hpp"
 #include "WavelangFunctions.hpp"
 #include <sstream>
 using namespace std;
@@ -22,7 +17,11 @@ enum WaveLangTkTypes
 	WPITCH,
 	WDURATION,
 	WPARK,
+	WPARKARGS,
+	WPARKARGSLIST,
 	WNAME,
+	WVOICE,
+	WEFFECT,
 	WJNAME,
 	WEQUAL,
 	WQUESTION,
@@ -33,7 +32,9 @@ enum WaveLangTkTypes
 	WECHOES,
 	WDELAY,
 	WTIMER,
-	WNOISE,
+	WRANDOM,
+	WONLEFT,
+	WPREV,
 	WOPBIN,
 	WOPBIN1,
 	WOPBIN2,
@@ -52,6 +53,8 @@ enum WaveLangTkTypes
 	WRPAREN,
 	WLBRACK,
 	WRBRACK,
+	// WLARG,
+	// WRARG,
 	WLSQUIGGLE,
 	WRSQUIGGLE,
 	//WLARROW,
@@ -84,28 +87,22 @@ enum WaveLangTkTypes
 
 void WaveLang::registerVariable(const string &symbol, size_t index)
 {
-	_language.addWordValue(symbol, _minUnusedTkType, g_voiceInputVars.get(index));
+	_language.addWordValue(symbol, _minUnusedTkType, Rex::getInputVar(0, index));
 	_language.addUnaryParseRule(WREXATOM, _minUnusedTkType);
 	_minUnusedTkType++;
 }
 void WaveLang::registerMutableVariable(const string &symbol, size_t index)
 {
-	_language.addWordValue(symbol, _minUnusedTkType, g_effectInputVars.get(index));
+	_language.addWordValue(symbol, _minUnusedTkType, Rex::getInputVar(1, index));
 	_language.addUnaryParseRule(WREXATOM, _minUnusedTkType);
 	_minUnusedTkType++;
 }
 
 void WaveLang::registerConstant(const string &symbol, double value)
 {
-	_language.addWordValue(symbol, _minUnusedTkType, g_constDoubles.getOrAdd(value));
+	_language.addWordValue(symbol, _minUnusedTkType, Rex::getConstant(value));
 	_language.addUnaryParseRule(WREXATOM, _minUnusedTkType);
 	_minUnusedTkType++;
-}
-
-void WaveLang::registerDefaultPark(const string &bindingCode)
-{
-	auto binding = decodeIntoValue(bindingCode).get<pair<string, Rex>>();
-	defaultWorld->addRex(binding.first, binding.second);
 }
 
 void WaveLang::registerUnOp(const string &symbol,
@@ -156,8 +153,12 @@ WaveLang::WaveLang()
 	_language.addWord(")", WRPAREN);
 	_language.addWord("[", WLBRACK);
 	_language.addWord("]", WRBRACK);
+	// _language.addWord("<", WLARG);
+	// _language.addWord(">", WRARG);
 	_language.addWord("{", WLSQUIGGLE);
 	_language.addWord("}", WRSQUIGGLE);
+	_language.addWord("voice", WVOICE);
+	_language.addWord("effect", WEFFECT);
 	//_language.addWord("<-", WLARROW);
 	_language.addWord("->", WRARROW);
 	_language.addWord("{{{", WLSQUIGGLE3);
@@ -167,15 +168,19 @@ WaveLang::WaveLang()
 	_language.addWord("?", WQUESTION);
 	_language.addWord(":", WCOLON);
 	_language.addWord(",", WCOMMA);
-	_language.addWord("noise", WNOISE);
+	_language.addWord("random", WRANDOM);
+	_language.addWord("onleft", WONLEFT);
+	_language.addWord("prev", WPREV);
 	_language.addWord("timer", WTIMER);
 	_language.addWord("phaser", WPHASER);
 	_language.addWord("echo", WECHO);
 	_language.addWord("echoes", WECHOES);
 	_language.addWord("delay", WDELAY);
 	_language.addWord("bezier", WBEZIER);
-	_language.addWordValue("~~", WBEZIERLINK, true);
-	_language.addWordValue("--", WBEZIERLINK, false);
+	_language.addWordValue("--", WBEZIERLINK, BezierLinkType::LINEAR);
+	_language.addWordValue("~-", WBEZIERLINK, BezierLinkType::QUADRATICFLATLEFT);
+	_language.addWordValue("-~", WBEZIERLINK, BezierLinkType::QUADRATICFLATRIGHT);
+	_language.addWordValue("~~", WBEZIERLINK, BezierLinkType::CUBICFLAT);
 
 	////////////////////////////////////////////////
 	// Constants
@@ -209,8 +214,8 @@ WaveLang::WaveLang()
 	registerBinOp("/", 3, realfunc2_div);
 	registerBinOp("**", 4, realfunc2_pow);
 
-	registerBinOp(">", 1, realfunc2_gt);
-	registerBinOp("<", 1, realfunc2_lt);
+	// registerBinOp(">", 1, realfunc2_gt);
+	// registerBinOp("<", 1, realfunc2_lt);
 
 	////////////////////////////////////////////////
 	// Numbers
@@ -244,8 +249,8 @@ WaveLang::WaveLang()
 		for (int degree2 = degree + 1; degree2 <= maxOpPriority + 1; degree2++)
 		{
 			TkType r2 = degree2 + WREX;
-			_language.addParseRule(r, {o1, r2}, {0, 1}, wApplyUnop);
-			_language.addParseRule(r, {o12, r2}, {0, 1}, wApplyAmbop1);
+			_language.addParseRule(r, {o1, r2}, {0, 1}, wApplyUnopRex);
+			_language.addParseRule(r, {o12, r2}, {0, 1}, wApplyAmbop1Rex);
 		}
 		// apply op2
 		for (int degree2 = degree; degree2 <= maxOpPriority + 1; degree2++)
@@ -254,8 +259,8 @@ WaveLang::WaveLang()
 			for (int degree3 = degree + 1; degree3 <= maxOpPriority + 1; degree3++)
 			{
 				TkType r3 = degree3 + WREX;
-				_language.addParseRule(r, {r2, o2, r3}, {0, 1, 2}, wApplyBinop);
-				_language.addParseRule(r, {r2, o12, r3}, {0, 1, 2}, wApplyAmbop2);
+				_language.addParseRule(r, {r2, o2, r3}, {0, 1, 2}, wApplyBinopRex);
+				_language.addParseRule(r, {r2, o12, r3}, {0, 1, 2}, wApplyAmbop2Rex);
 			}
 		}
 	}
@@ -269,40 +274,55 @@ WaveLang::WaveLang()
 	////////////////////////////////////////////////
 	// Special operators
 
-	_language.addParseRule(WREXATOM, {WNOISE}, {}, wNoiseRex);
+	_language.addParseRule(WREXATOM, {WRANDOM,WLPAREN,WREX,WCOMMA,WREX,WRPAREN}, {2,4}, wRandomRex);
+	_language.addParseRule(WREXATOM, {WONLEFT,WLPAREN,WREX,WCOMMA,WREX,WRPAREN}, {2,4}, wOnLeftRex);
+	_language.addParseRule(WREXATOM, {WPREV,WREXATOM}, {1}, wPrevRex);
 	_language.addParseRule(WREXATOM, {WTIMER}, {}, wTimerRex);
 	_language.addParseRule(WREXATOM, {WPHASER, WREXATOM}, {1}, wPhaseRex);
-	_language.addParseRule(WREXATOM, {WECHO, WREAL, WREXATOM, WREXATOM}, {1, 2, 3}, wEchoRex);
-	_language.addParseRule(WREXATOM, {WECHOES, WREAL, WREXATOM, WREXATOM}, {1, 2, 3}, wEchoesRex);
-	_language.addParseRule(WREXATOM, {WDELAY, WREXATOM, WREXATOM}, {1, 2}, wDelayRex);
+	// _language.addParseRule(WREXATOM, {WECHO, WREAL, WREXATOM, WCOMMA, WREXATOM}, {1, 2, 4}, wEchoRex);
+	// _language.addParseRule(WREXATOM, {WECHOES, WREAL, WREXATOM, WCOMMA, WREXATOM}, {1, 2, 4}, wEchoesRex);
+	_language.addParseRule(WREXATOM, {WDELAY, WREXATOM, WCOMMA, WREXATOM}, {1, 3}, wDelayRex);
 	// _language.addParseRule(WREX, {WREXATOM, WQUESTION, WREXATOM, WCOLON, WREXATOM}, {0, 2, 4}, wConditionalRex);
 
 	////////////////////////////////////////////////
 	// Bezier curve
 
-	_language.addParseRule(WBEZIERPT, {WREX, WCOMMA, WREX}, {0, 2}, wBezierPt0FromRex2);
+	_language.addParseRule(WBEZIERPT, {WREX, WCOMMA, WREX}, {0, 2}, wBezierPtExBuild);
 
-	_language.addListRule2(WBEZIERCURVE, WLBRACK, WBEZIERPT, WBEZIERLINK, WRBRACK, wBezierCurveFrom2Vecs);
-	_language.addParseRule(WREX, {WREX, WBEZIERCURVE}, {0, 1}, wBezierWaveFromXAndCurve);
+	_language.addListRule2(WBEZIERCURVE, WLBRACK, WBEZIERPT, WBEZIERLINK, WRBRACK, wBezierCurveExBuild);
+	_language.addParseRule(WREXATOM, {WREXATOM, WBEZIERCURVE}, {0, 1}, wBezierWaveExBuild);
 
 	////////////////////////////////////////////////
-	// Build JurassicParks and JurassicWorlds
+	// Build JurassicParks
 
-	auto parkRule = _language.addParseRule(WPARK, {WNAME, WEQUAL, WREX, WSEMICOLON}, {0, 2}, makeParkBinding);
+	// Simple
+	auto parkRule = _language.addParseRule(WPARK, {WNAME, WEQUAL, WREX, WSEMICOLON}, {0, 2}, wEquation);
+	
+	// Function bind
+	auto parkBindRuleWithArgs = _language.addParseRule(
+		WPARK, {WPARKARGS, WEQUAL, WREX, WSEMICOLON}, {0, 2}, makeCustomFunctionDefinition);
+	
+	// function declaration / call
+	_language.addListRuleDelim<Rex>(WPARKARGSLIST, WLPAREN, WREX, WCOMMA, WRPAREN);
+	_language.addParseRule(WPARKARGS, {WNAME, WPARKARGSLIST}, {0,1}, wCustomFunctionArgs);
+	
+	// RHS function call
+	_language.addParseRule(WREXATOM, {WPARKARGS}, {0}, makeCustomFunctionCallRex);
+	
+	////////////////////////////////////////////////
+	// Build EquationSets
 
-	_language.addListRule(WJWORLD, WLSQUIGGLE, WPARK, WRSQUIGGLE, jurassicWorldFromParkBindings);
-	_language.addNodePreFunc(parkRule, newJPark);
+	_language.addListRule(WJWORLD, WLSQUIGGLE, WPARK, WRSQUIGGLE, equationSetFromParkBindings);
 
 	_language.addParseRule(WJWORLD, {WJWORLD, WJWORLD}, {0, 1}, jworldFrom2Jworlds);
 	_language.addParseRule(WJWORLD, {WJNAME}, {0}, jurassicWorldFromJName);
 
 	_language.addParseRule(WJUNIVERSECOMM, {WJNAME, WEQUAL, WJWORLD, WSEMICOLON}, {0, 2}, jurassicWorldBindingSimple);
+	_language.addParseRule(WJUNIVERSECOMM, {WVOICE, WJNAME, WEQUAL, WJWORLD, WSEMICOLON}, {1, 3}, jurassicWorldBindingVoice);
+	_language.addParseRule(WJUNIVERSECOMM, {WEFFECT, WJNAME, WEQUAL, WJWORLD, WSEMICOLON}, {1, 3}, jurassicWorldBindingEffect);
 	_language.addParseRule(WJUNIVERSECOMM, {WJNAME, WRARROW, WJNAME, WSEMICOLON}, {0, 2}, connectionFromNames);
-	//_language.addUnaryParseRule(WJUNIVERSECOMM, WNAMEDJWORLD);
-	//_language.addUnaryParseRule(WJUNIVERSECOMM, WJCONNECTION);
 
-	auto universeRule = _language.addListRule(WJUNIVERSE, WLSQUIGGLE3, WJUNIVERSECOMM, WRSQUIGGLE3, wUniverseFromNamedWorlds);
-	//auto universeRule = _language.addListRule(WJUNIVERSE, WLSQUIGGLE3, WNAMEDJWORLD, WRSQUIGGLE3, wUniverseFromNamedWorlds);
+	auto universeRule = _language.addListRule(WJUNIVERSE, TKTYPE_BOF, WJUNIVERSECOMM, TKTYPE_EOF, wUniverseFromNamedWorlds);
 	_language.addNodePreFunc(universeRule, newJUniverse);
 
 	// Language rules END
@@ -313,6 +333,8 @@ WaveLang::WaveLang()
 	_language.setTkTypeRepr(WJWORLD, "JWorld");
 	_language.setTkTypeRepr(WJNAME, "JName");
 	_language.setTkTypeRepr(WPARK, "Park");
+	_language.setTkTypeRepr(WPARKARGSLIST, "ParkArgsList");
+	_language.setTkTypeRepr(WPARKARGS, "ParkArgs");
 	_language.setTkTypeRepr(WREXTRIPLE, "RexTriple");
 	_language.setTkTypeRepr(WBEZIERPT, "BezierPt");
 	_language.setTkTypeRepr(WBEZIERCURVE, "BezierCurve");
@@ -339,26 +361,24 @@ WaveLang::WaveLang()
 		_language.setTkTypeRepr(WOPAMB + degree, ss4.str());
 	}
 
-	////////////////////////////////////////////////
-	// Default JurassicWorld (with default rexes)
-	// Note: This must be done AFTER the language rules are all in,
-	//   since registerDefaultPark interprets the language internally.
-
-	defaultWorld.reset(new JurassicWorld());
-	// defaultWorld->clear();
 }
 
 ////////////////////////////////////////////////
+
+Language *WaveLang::getLang()
+{
+	return &_language;
+}
 
 Value WaveLang::decodeIntoValue(const string &code)
 {
 	return _language.interpret(code);
 }
 
-WaveLangResult WaveLang::decode(const string &code)
-{
-	Value res = _language.interpretFile(code);
-	return res.get<WaveLangResult>();
-}
+// WaveLangResult WaveLang::decodeFile(const string &filename)
+// {
+// 	Value res = _language.interpretFile(filename);
+// 	return res.get<WaveLangResult>();
+// }
 
 ////////////////////////////////////////////////

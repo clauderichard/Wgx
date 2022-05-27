@@ -16,12 +16,21 @@ set_target_properties(Wgx PROPERTIES
     UNITY_BUILD_MODE BATCH
 )
 
-# Android mode
-add_compile_definitions(
-    SFML_SUPPORTED
-    DEBUG_LOGS
-    WGX_ROOTDIR="/storage/emulated/0/Cpp/Wgx/"
-    WGX_WAVOUTPUTDIR="/storage/emulated/0/Music/WgxPlayground/"
-    )
-find_package(SFML COMPONENTS system network audio REQUIRED)
-target_link_libraries(Wgx sfml-system sfml-network sfml-audio)
+if (EXISTS "${PROJECT_SOURCE_DIR}/../../../Claude")
+    # Desktop mode
+    add_compile_definitions(
+        WGX_ROOTDIR="C:/Claude/Cpp/Wgx/"
+        WGX_WAVOUTPUTDIR="C:/Claude/foobar2000/Music/WgxPlayground/"
+        )
+else()
+    # Android mode
+    add_compile_definitions(
+        SFML_SUPPORTED
+        DEBUG_LOGS
+        WGX_ROOTDIR="/storage/emulated/0/Cpp/Wgx/"
+        WGX_WAVOUTPUTDIR="/storage/emulated/0/Music/WgxPlayground/"
+        )
+    find_package(SFML COMPONENTS system network audio REQUIRED)
+    target_link_libraries(Wgx sfml-system sfml-network sfml-audio)
+endif()
+

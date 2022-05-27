@@ -1,41 +1,24 @@
 #include "WaveLang.hpp"
 #include "Parsing/CharFunctions.hpp"
-#include "JurassicVoice.hpp"
-#include "Wave/IVoice.hpp"
-#include "JurassicWorld.hpp"
-#include "JurassicUniverse.hpp"
-#include "Rex.hpp"
-#include "RealFunc.hpp"
-#include "ValuesSets.hpp"
+#include "Jurassic/JurassicUniverse.hpp"
+#include "Jurassic/JurassicVoice.hpp"
+#include "Jurassic/ValuesBank.hpp"
+#include "Jurassic/RealFunc.hpp"
 #include "TrexSpecies.hpp"
-#include "TrexSpeciesEffects.hpp"
+#include "Expr/RexSpecies.hpp"
 #include <sstream>
 using namespace std;
 
 shared_ptr<JurassicUniverse> g_jUniverse;
-shared_ptr<JurassicWorld> defaultWorld;
 
 ////////////////////////////////////////////////
 // Traverser pre-functions
 // (call before traversing children)
 
-void newJPark()
-{
-	Rex::useNewPark();
-}
-
 void newJUniverse()
 {
 	g_jUniverse.reset(new JurassicUniverse());
 }
-
-////////////////////////////////////////////////
-
-struct BezierCurve
-{
-	vector<BezierPointSpec0> _pts;
-	vector<bool> _links;
-};
 
 ////////////////////////////////////////////////
 // Atoms
@@ -44,149 +27,202 @@ double realFromInt(int &a)
 {
 	return a * 1.0;
 }
-crealp rexFromReal(double &a)
+Rex rexFromReal(double &a)
 {
-	return g_constDoubles.getOrAdd(a);
+	return Rex::getConstant(a);
 }
 
-crealp rexVarFromName(string &name)
+Rex rexVarFromName(string &name)
 {
-	return g_namedVarsDoubles.getOrAdd(name);
+	return Rex::getNamedVar(name);
 }
 
 ////////////////////////////////////////////////
-// Bezier new
+// Bezier
 
-BezierPointSpec0 wBezierPt0FromRex2(crealp &x, crealp &y)
+struct BezierPointEx
 {
-	BezierPointSpec0 pt;
+	Rex _x;
+	Rex _y;
+};
+
+struct BezierCurveEx
+{
+	vector<BezierPointEx> _pts;
+	vector<BezierLinkType> _links;
+};
+
+BezierPointEx wBezierPtExBuild(Rex &x, Rex &y)
+{
+	BezierPointEx pt;
 	pt._x = x;
 	pt._y = y;
 	return pt;
 }
 
-BezierCurve wBezierCurveFrom2Vecs(
-	vector<BezierPointSpec0> &pts,
-	vector<bool> &links)
+BezierCurveEx wBezierCurveExBuild(
+	vector<BezierPointEx> &pts,
+	vector<BezierLinkType> &links)
 {
-	BezierCurve curve;
+	BezierCurveEx curve;
 	curve._pts = pts;
 	curve._links = links;
 	return curve;
 }
 
-crealp wBezierWaveFromXAndCurve(
-	crealp &x,
-	BezierCurve &curve)
+////////////////////////////////////////////////
+
+Rex wRexTrex_helper(ITrex *trex, vector<Rex> args)
 {
-	return Rex::mkRex(new TrexBezierCurves0(curve._pts, curve._links, x));
+	shared_ptr<ITrex> trexShared(trex);
+    return Rex(new RexTrex(trexShared, args));
+}
+
+Rex wBezierWaveExBuild(
+	Rex &x,
+	BezierCurveEx &curve)
+{
+	vector<BezierPointSpec0> newPts;
+	vector<Rex> args{x};
+	for(auto &pt : curve._pts)
+	{
+		BezierPointSpec0 newPt;
+		newPt._x = pt._x.getResultPlaceholder();
+		newPt._y = pt._y.getResultPlaceholder();
+		newPts.push_back(newPt);
+		args.push_back(pt._x);
+		args.push_back(pt._y);
+	}
+	return wRexTrex_helper(new TrexBezierCurves0(
+		newPts, curve._links, x.getResultPlaceholder()), args);
+}
+
+Rex wApplyUnopRex_helper(realfunc1 f, Rex &b)
+{
+	return wRexTrex_helper(new TrexFunc1(f, b.getResultPlaceholder()), {b});
+}
+Rex wApplyBinopRex_helper(realfunc2 g, Rex &a, Rex &b)
+{
+	return wRexTrex_helper(new TrexFunc2(g,
+		a.getResultPlaceholder(),
+		b.getResultPlaceholder()), {a,b});
+}
+Rex wApplyUnopRex(Op1 &o, Rex &b)
+{
+	return wApplyUnopRex_helper(o._f, b);
+}
+Rex wApplyBinopRex(Rex &a, Op2 &o, Rex &b)
+{
+	return wApplyBinopRex_helper(o._g, a, b);
+}
+Rex wApplyAmbop1Rex(OpAmbiguous &o, Rex &b)
+{
+	return wApplyUnopRex_helper(o._f, b);
+}
+Rex wApplyAmbop2Rex(Rex &a, OpAmbiguous &o, Rex &b)
+{
+	return wApplyBinopRex_helper(o._g, a, b);
+}
+
+Rex wRandomRex(Rex &a, Rex &b) {
+	return wRexTrex_helper(new TrexRandom(
+		a.getResultPlaceholder(),
+		b.getResultPlaceholder()), {a,b});
+}
+Rex wPrevRex(Rex &a) {
+	return wRexTrex_helper(new TrexPrev(
+		a.getResultPlaceholder()), {a});
+}
+Rex wOnLeftRex(Rex &a, Rex &b) {
+	return wRexTrex_helper(new TrexChangeWhenLeft(
+		a.getResultPlaceholder(),
+		b.getResultPlaceholder()), {a,b});
+}
+Rex wTimerRex() { return wRexTrex_helper(new TrexTimer(), {}); }
+Rex wPhaseRex(Rex &freq)
+{
+	return wRexTrex_helper(new TrexPhase(
+		freq.getResultPlaceholder()), {freq});
+}
+Rex wDelayRex(Rex &delay, Rex &inp)
+{
+	return wRexTrex_helper(new TrexDelay(
+		inp.getResultPlaceholder(),
+		delay.getResultPlaceholder()), {inp,delay});
 }
 
 ////////////////////////////////////////////////
 
-crealp wPhaseRex(crealp &freq)
+pair<string, Rex> wEquation(string &name, Rex &rex)
 {
-	return Rex::mkRex(new TrexPhase(freq));
-}
-crealp wNoiseRex()
-{
-	return Rex::mkRex(new TrexNoise());
-}
-crealp wTimerRex()
-{
-	return Rex::mkRex(new TrexTimer());
-}
-crealp wEchoRex(double &delay, crealp &inp, crealp &gain)
-{
-	size_t delaySamples = (size_t)(delay * WGX_SAMPLESPERSECOND);
-	return Rex::mkRex(new TrexEcho(inp, gain, delaySamples));
-}
-crealp wEchoesRex(double &delay, crealp &inp, crealp &gain)
-{
-	size_t delaySamples = (size_t)(delay * WGX_SAMPLESPERSECOND);
-	return Rex::mkRex(new TrexEchoes(inp, gain, delaySamples));
+	return pair<string, Rex>(name, rex);
 }
 
-crealp wDelayRex(crealp &delay, crealp &inp)
+pair<string, vector<Rex>> wCustomFunctionArgs(string &name, vector<Rex> &args)
 {
-	return Rex::mkRex(new TrexDelay(inp, delay));
+	return pair<string, vector<Rex>>(name, args);
 }
 
-// crealp wConditionalRex(crealp &cond, crealp &iftrue, crealp &iffalse)
-// {
-// 	return Rex::mkRex(new TrexConditional(cond, iftrue, iffalse));
-// }
-
-crealp wApplyUnop(Op1 &o, crealp &b)
+pair<string, Rex> makeCustomFunctionDefinition(pair<string, vector<Rex>> &nameAndArgs, Rex &rex)
 {
-	if (g_constDoubles.contains(b))
+	vector<Rex> &args = nameAndArgs.second;
+	// replace rex's namedVars corresponding to args, with arg placeholders.
+	RexSubstitutions subs;
+	for(size_t i = 0; i < args.size(); i ++)
 	{
-		return g_constDoubles.getOrAdd(o._f(*b));
+		subs.set(args[i], Rex::getCustomFunParam(i));
 	}
-	return Rex::mkRex(new TrexFunc1(o._f, b));
-}
-crealp wApplyBinop(crealp &a, Op2 &o, crealp &b)
-{
-	if (g_constDoubles.contains(a) && g_constDoubles.contains(b))
-	{
-		return g_constDoubles.getOrAdd(o._g(*a, *b));
-	}
-	return Rex::mkRex(new TrexFunc2(o._g, a, b));
-}
-crealp wApplyAmbop1(OpAmbiguous &o, crealp &b)
-{
-	if (g_constDoubles.contains(b))
-	{
-		return g_constDoubles.getOrAdd(o._f(*b));
-	}
-	return Rex::mkRex(new TrexFunc1(o._f, b));
-}
-crealp wApplyAmbop2(crealp &a, OpAmbiguous &o, crealp &b)
-{
-	if (g_constDoubles.contains(a) && g_constDoubles.contains(b))
-	{
-		return g_constDoubles.getOrAdd(o._g(*a, *b));
-	}
-	return Rex::mkRex(new TrexFunc2(o._g, a, b));
+	Rex newR = rex.copyWithSubstitutions(subs);
+	return pair<string, Rex>(nameAndArgs.first, newR);
 }
 
-////////////////////////////////////////////////
-
-pair<string, Rex> makeParkBinding(string &name, crealp &rex)
+Rex makeCustomFunctionCallRex(pair<string, vector<Rex>> &nameWithArgs)
 {
-	Rex r(rex, Rex::g_currentJurassicPark);
-	return pair<string, Rex>(name, r);
+	return Rex(new RexCustomFunCall(nameWithArgs.first, nameWithArgs.second));
 }
 
-shared_ptr<JurassicWorld> jurassicWorldFromParkBindings(vector<pair<string, Rex>> &bindings)
+shared_ptr<EquationSet> equationSetFromParkBindings(vector<pair<string, Rex>> &bindings)
 {
-	shared_ptr<JurassicWorld> jw(defaultWorld->copy());
+	shared_ptr<EquationSet> eqns = make_shared<EquationSet>();
 	for (size_t i = 0; i < bindings.size(); i++)
 	{
-		jw->addRex(bindings[i].first, bindings[i].second);
+		eqns->set(bindings[i].first, bindings[i].second);
 	}
-	return jw;
+	return eqns;
 }
 
 ////////////////////////////////////////////////
 
-shared_ptr<JurassicWorld> jurassicWorldFromJName(string &jname)
+shared_ptr<EquationSet> jurassicWorldFromJName(string &jname)
 {
 	return g_jUniverse->getWorld(jname);
 }
 
-int jurassicWorldBindingSimple(string &name, shared_ptr<JurassicWorld> &world)
+int jurassicWorldBindingSimple(string &name, shared_ptr<EquationSet> &world)
 {
 	g_jUniverse->addWorld(name, world);
 	return 7;
 }
-
-shared_ptr<JurassicWorld> jworldFrom2Jworlds(
-	shared_ptr<JurassicWorld> &a,
-	shared_ptr<JurassicWorld> &b)
+int jurassicWorldBindingVoice(string &name, shared_ptr<EquationSet> &world)
 {
-	shared_ptr<JurassicWorld> c(a->copy());
-	c->addAllRexesFrom(b);
+	g_jUniverse->addWorld(name, world);
+	g_jUniverse->setNameIsVoice(name);
+	return 7;
+}
+int jurassicWorldBindingEffect(string &name, shared_ptr<EquationSet> &world)
+{
+	g_jUniverse->addWorld(name, world);
+	g_jUniverse->setNameIsEffect(name);
+	return 7;
+}
+
+shared_ptr<EquationSet> jworldFrom2Jworlds(
+	shared_ptr<EquationSet> &a,
+	shared_ptr<EquationSet> &b)
+{
+	shared_ptr<EquationSet> c = make_shared<EquationSet>();
+	c->addMissingFrom(*b);
+	c->addMissingFrom(*a);
 	return c;
 }
 

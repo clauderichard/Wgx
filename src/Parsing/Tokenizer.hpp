@@ -69,7 +69,6 @@ class Tokenizer
 					TkState fromState = 0);
 
 	void tokenizeLine(vector<Token> &ret, const string &inputString);
-	vector<Token> tokenize(const string &inputString);
 	
   private:
     void initialize();

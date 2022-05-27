@@ -6,20 +6,20 @@ using namespace std;
 
 ////////////////////////////////////////////////
 
-typedef double GenTime;
+typedef double EggTime;
 
 ////////////////////////////////////////////////
 
 struct EventInfo
 {
-	GenTime _postLag;
-	GenTime _duration;
+	EggTime _postLag;
+	EggTime _duration;
 	double _pitch;
 	size_t _voiceIndex;
 	bool _isStart;
 
-	GenTime &refPostLag() { return _postLag; }
-	GenTime &refDuration() { return _duration; }
+	EggTime &refPostLag() { return _postLag; }
+	EggTime &refDuration() { return _duration; }
 	double &refPitch() { return _pitch; }
 	size_t &refVoiceIndex() { return _voiceIndex; }
 };

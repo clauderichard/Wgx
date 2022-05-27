@@ -1,0 +1,90 @@
+
+Defaults = {
+    pi = 3.1415926535897; tau = 2*pi;
+    baseFreq = 440; semitoneFreqFactor = 2**(1/12);
+	time = timer; timeFrac = time / $duration;
+	pitch = $pitch + octave*12; octave = 0;
+	freq = baseFreq * semitoneFreqFactor**pitch;
+	phase = phaser freq;
+
+    waveSin = sin(phase * tau);
+    waveSawtooth = phase;
+    waveSquare = phase [0,1 -- 0,-1 -- 0.5,-1 -- 0.5,1 -- 1,1];
+    waveSquareIsh(delta) = phase [0,1 -- 
+        delta,-1 -- 0.5,-1 -- 
+        0.5+delta,1 -- 1,1];
+    waveTri = phase [0,1 -- 0.5,-1 -- 1,1];
+    waveTriOblong(x) = phase [0,1 -- x,-1 -- 1,1];
+    waveSmooth = phase [0,1 ~~ 0.5,-1 ~~ 1,1];
+    waveTing = phase [0,1 ~~ 
+    	0.25,-0.5 ~~ 0.5,0.5 ~~
+    	0.75,-1 ~~ 1,1];
+    wave2Peaks(delta) = phase [0,1 ~~ delta,-1 ~~ 0.5,1 ~~ (1-delta),-1 ~~ 1,1];
+    waveWhat(delta) = phase [0,1 ~~ (0.5-delta),0 ~~ 0.5,0.5 ~~ (0.5+delta),-1 ~~ 1,1];
+    waveNes = phase [0,0 -- 0.25,1 -- 0.75,-1 -- 0.75,0 -- 1,1];
+    waveNes2 = phase [0,0 -- 0.5,1 -- 0.5,0 -- 1,-1];
+	waveDoubleTri(x) = phase [0,-1 -- (x/2),1 -- x,-1 -- (1+x)/2,1 -- 1,-1];
+
+    ampDing = timeFrac [0,0 -- 0.01,1 -- 0.5,0.7 -- 1,0];
+    ampDing2 = timeFrac [0,0 -- 0.005,1 -- 0.02,0.6 -- 0.4,0.3 -- 1,0];
+    ampAah = timeFrac [0,0 -- 0.95,1 -- 1,0];
+    ampTri = timeFrac [0,0 -- 0.5,1 -- 1,0];
+    ampSquarish = timeFrac [0,0 -- 
+    	ampSquarishDelta,1 -- 
+    	(1-ampSquarishDelta),1 -- 1,0];
+    ampSquarishDelta = 0.02;
+    ampBoing = (timeFrac [0,0 -- 0.5,1 -- 1,0]) * (1 + sin(timeFrac*tau))/2;
+
+    vol = 1.0;
+    out = amp * wave * vol;
+    
+    in = ($inL + $inR) / 2;
+};
+
+
+Noises = {
+	amp = time[0,0 -- 0.01,1 -- 0.02,0.5 -- $duration,0];
+	vol = 0.5;
+	octave = 0;
+    x = phaser freqR;
+	wave = x [0,y0 -- 1,y1];
+};
+
+voice Noise = Noises {
+	#amp = time[0,0 -- 0.01,1 -- 0.02,0.5 -- $duration,0];
+	amp = ampTri;
+	vol = 0.5;
+	octave = 0;
+	
+    freqR = freq * (1 - timeFrac/2);
+    y1 = onleft (x, random(-1,1));
+    y0 = onleft (x, prev(y1));
+    #y0 = onleft (x, random(-1,1));
+};
+
+Echoes =
+{
+	ech(i,g,d) = i + g * delay d, i;
+	echs(i,g,d,o) = i + g * delay d, o;
+	eeee(d,o) = delay d, o;
+    gain1 = 0.7;
+    gain2 = 0.7;
+	gain3 = 0.7;
+    del1 = 0.1;
+    del2 = 0.21;
+	del3 = 0.45;
+    x1 = ech($inL, gain1, del1, x1);
+	x2 = ech(  x1, gain2, del2, x2);
+    x3 = ech(  x1, gain3, del3, x3);
+    out = x2;
+    outR = x3;
+};
+
+#Noise -> Echoes;
+
+-----------------------------------------
+
+@Noise
+{
+	A /3
+}

@@ -4,4 +4,4 @@ using namespace std;
 
 ////////////////////////////////////////////////
 
-shared_ptr<Synthesizer> g_genlangSynthesizer;
+shared_ptr<ISynthesizer> g_egglangSynthesizer;

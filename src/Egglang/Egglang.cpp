@@ -7,7 +7,7 @@ using namespace std;
 
 bool g_isStartPresent = false;
 
-enum GenLangTkTypes
+enum EgglangTkTypes
 {
 	GINT = 1,
 	GPITCH,
@@ -27,8 +27,8 @@ enum GenLangTkTypes
 	GFORKELEM,
 	GVOICENAME,
 	GLOOP,
-	GGEN,
-	GGENLIST,
+	GEGG,
+	GEGGLIST,
 	GPLUS,
 	GMINUS,
 	GMUL,
@@ -44,7 +44,7 @@ enum GenLangTkTypes
 
 ////////////////////////////////////////////////
 
-GenLang::GenLang()
+Egglang::Egglang()
 	: _language(99)
 //_minUnusedTkType(GMAXLANGTKTYPES)
 {
@@ -87,11 +87,7 @@ GenLang::GenLang()
 	_language.addParseRule(GEVENT, {GPITCH}, {0}, gEventFromPitch);
 	_language.addParseRule(GEVENT, {GEVENT,GREAL}, {0,1}, gEventExpand);
 	_language.addParseRule(GEVENT, {GEXCL,GEVENT}, {1}, gEventSetIsStart);
-	//_language.addParseRule(GGEN, {GPITCH}, {0}, gNoteFromPitch);
-	//_language.addParseRule(GGEN, {GPITCH,GREAL}, {0,1}, gNoteFromPitchMultiplied);
-	//_language.addParseRule(GGEN, {GREST}, {}, gRest);
-	//_language.addParseRule(GGEN, {GREST,GREAL}, {1}, gRestMultiplied);
-	_language.addParseRule(GGEN, {GEVENT}, {0}, gGenFromEvent);
+	_language.addParseRule(GEGG, {GEVENT}, {0}, gEggFromEvent);
 
 	TkState inInt = _language.addCharStar(charIsDigit, GINT, readReal);
 	TkState atDecimal = _language.addPostStarWord(".", GREAL, inInt);
@@ -103,43 +99,40 @@ GenLang::GenLang()
 
 	TkState inVoiceName = _language.addPostStarWord("@", GVOICENAME, 0);
 	_language.addCharStar(charIsAlphanumeric, GVOICENAME, gVoiceIndexFromNameWithAt, inVoiceName);
-	_language.addParseRule(GGEN, {GVOICENAME, GGEN}, {0, 1}, gVoiceGen);
+	_language.addParseRule(GEGG, {GVOICENAME, GEGG}, {0, 1}, gVoiceNameGen);
 
 	////////////////////////////////////////////////
 	// Sequence, Parallel, Loop
 	
-	_language.addParseRule(GFORKELEM, {GGEN}, {0}, gEggElem);
+	_language.addParseRule(GFORKELEM, {GEGG}, {0}, gEggElem);
 	_language.addParseRule(GFORKELEM, {GPIPE},{}, gPipe);
 	_language.addParseRule(GFORKELEM, {GPIPE2},{}, gPipe2);
 
-	_language.addListRule(GGENLIST, GLPAREN, GGEN, GRPAREN, gGensList);
-	_language.addParseRule(GGEN, {GRAND, GGENLIST}, {1}, gRandFromGens);
-	_language.addParseRule(GGEN, {GCYCLE, GGENLIST}, {1}, gCycleFromGens);
+	_language.addListRule<shared_ptr<IEgg>>(GEGGLIST, GLPAREN, GEGG, GRPAREN);
+	_language.addParseRule(GEGG, {GRAND, GEGGLIST}, {1}, gRandFromEggs);
+	_language.addParseRule(GEGG, {GCYCLE, GEGGLIST}, {1}, gCycleFromEggs);
 	
-	_language.addListRule(GGEN, GLBRACK, GFORKELEM, GRBRACK, gSeqFromGens);
-	_language.addListRule(GGEN, GSMALLER, GFORKELEM, GGREATER, gParFromGens);
-	_language.addParseRule(GGEN, {GLOOP, GGEN}, {1}, gLoopFromGens);
-	_language.addParseRule(GGEN, {GGEN, GX, GINT}, {0, 2}, gRepeatGen1);
+	_language.addListRule(GEGG, GLBRACK, GFORKELEM, GRBRACK, gSeqFromEggs);
+	_language.addListRule(GEGG, GSMALLER, GFORKELEM, GGREATER, gParFromEggs);
+	_language.addParseRule(GEGG, {GLOOP, GEGG}, {1}, gLoopFromEgg);
+	_language.addParseRule(GEGG, {GEGG, GX, GINT}, {0, 2}, gRepeatEgg1);
 
 	////////////////////////////////////////////////
 	// Operators
 
-	_language.addParseRule(GGEN, {GGEN, GMUL, GREAL}, {0, 2}, gTimeExpandGen);
-	_language.addParseRule(GGEN, {GGEN, GDIV, GREAL}, {0, 2}, gTimeContractGen);
-	_language.addParseRule(GGEN, {GGEN, GUNDERSLASH, GREAL}, {0, 2}, gDurSetGen);
-	_language.addParseRule(GGEN, {GGEN, GSHARP}, {0}, gSharpGen0);
-	_language.addParseRule(GGEN, {GGEN, GFLAT}, {0}, gFlatGen0);
-	_language.addParseRule(GGEN, {GGEN, GSHARP, GREAL}, {0, 2}, gSharpGen1);
-	_language.addParseRule(GGEN, {GGEN, GFLAT, GREAL}, {0, 2}, gFlatGen1);
-	_language.addParseRule(GGEN, {GGEN, GPLUS}, {0}, gOctavePlusGen);
+	_language.addParseRule(GEGG, {GEGG, GMUL, GREAL}, {0, 2}, gTimeExpandEgg);
+	_language.addParseRule(GEGG, {GEGG, GDIV, GREAL}, {0, 2}, gTimeContractEgg);
+	_language.addParseRule(GEGG, {GEGG, GUNDERSLASH, GREAL}, {0, 2}, gDurSetEgg);
+	_language.addParseRule(GEGG, {GEGG, GSHARP}, {0}, gSharpEgg0);
+	_language.addParseRule(GEGG, {GEGG, GFLAT}, {0}, gFlatEgg0);
+	_language.addParseRule(GEGG, {GEGG, GSHARP, GREAL}, {0, 2}, gSharpEgg1);
+	_language.addParseRule(GEGG, {GEGG, GFLAT, GREAL}, {0, 2}, gFlatEgg1);
+	_language.addParseRule(GEGG, {GEGG, GPLUS}, {0}, gOctavePlusEgg);
+	_language.addParseRule(GEGG, {GEGG, GMINUS}, {0}, gOctaveMinusEgg);
 
-	_language.addParseRule(GGEN, {GGEN, GINJ, GGEN}, {0,2}, gMelodyInject);
+	_language.addParseRule(GEGG, {GEGG, GINJ, GEGG}, {0,2}, gMelodyInject);
 
-	////////////////////////////////////////////////
-	// Numbers
-
-	////////////////////////////////////////////////
-	// Special operators
+	_language.addUnaryParseRule(GEGG, {TKTYPE_BOF,GEGG,TKTYPE_EOF}, 1);
 
 	// Language rules END
 	////////////////////////////////////////////////
@@ -149,16 +142,16 @@ GenLang::GenLang()
 	_language.setTkTypeRepr(GREAL, "Real");
 	_language.setTkTypeRepr(GEVENT, "Event");
 	_language.setTkTypeRepr(GFORKELEM, "ForkElem");
-	_language.setTkTypeRepr(GGENLIST, "GenList");
+	_language.setTkTypeRepr(GEGGLIST, "EggList");
 	
 	////////////////////////////////////////////////
 }
 
 ////////////////////////////////////////////////
 
-map<string, size_t> GenLang::g_voiceNameToIndex;
+map<string, size_t> Egglang::g_voiceNameToIndex;
 
-void GenLang::initVoiceIndexes(
+void Egglang::initVoiceIndexes(
 	map<string, size_t> &a)
 {
 	for (auto x : a)
@@ -168,32 +161,36 @@ void GenLang::initVoiceIndexes(
 	}
 }
 
-size_t GenLang::getVoiceIndex(const string &name)
+size_t Egglang::getVoiceIndex(const string &name)
 {
 	return g_voiceNameToIndex.at(name);
 }
 
 ////////////////////////////////////////////////
 
-Value GenLang::decodeIntoValue(const string &code)
+Language *Egglang::getLang()
+{
+	return &_language;
+}
+
+Value Egglang::decodeIntoValue(const string &code)
 {
 	return _language.interpret(code);
 }
 
-GenLangResult GenLang::decode(const string &code)
+EgglangResult Egglang::decodeLine(const string &line)
 {
-	Value res = decodeIntoValue(code);
-	auto el = res.get<ForkerElem>();
-	el._egg->reset();
+	Value res = _language.interpret(line);
+	auto egg = res.get<EgglangResult>();
+	egg->reset();
 	if (g_isStartPresent)
 	{
-		return make_shared<EggStart>(el._egg);
+		return make_shared<EggStart>(egg);
 	}
 	else
 	{
-		return el._egg;
+		return egg;
 	}
-	
 }
 
 ////////////////////////////////////////////////

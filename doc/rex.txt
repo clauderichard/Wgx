@@ -1,0 +1,40 @@
+How to refactor so that custom function calls work,
+and also the code is understandable by humans.
+And debuggable by humans.
+Because I'm human and I don't understand how my own code works, it's awful!
+
+Don't have super-optimization here, it's not runtime generating waves!
+
+Have expressions point to each other.
+Do not have expressions point to doubles
+(because then you wouldn't know easily what expression it comes from)
+
+Have some expressions be just a name.
+It will be resolved later.
+This is necessary in order to avoid pointer-cycles.
+For feedback expressions.
+There should be one instance per distinct name
+(to only process a name once during translation)
+
+Some names are actually functions, so some of their dependencies
+will be argument placeholder expressions.
+
+Some expressions should be function calls,
+so they have a function name to call,
+and the arguments are other expressions.
+Translation involves taking the function definition
+(which is an expression with placeholders for arguments)
+and replacing those placeholders with the current arguments.
+But that's all done in the insertion into synth element.
+
+A World should have just a bunch of assignments Name = Expr.
+
+A World must have toVoice and toEffect methods.
+So all these expressions must be translatable to synth elements.
+
+Within an expression object, have flags, maps etc that are used
+only during translation into synth element.
+They say what the expression got translated to.
+
+During translation, update a RealpMap
+(from expr.resultPlaceholder to synthElement crealp).

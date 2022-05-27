@@ -5,7 +5,9 @@
 #include <stdexcept>
 using namespace std;
 
-static inline double bezierInterpol0(
+////////////////////////////////////////////////
+
+static inline double bezierInterpol_linear(
 	double x1, double y1,
 	double x2, double y2,
 	double x)
@@ -14,35 +16,31 @@ static inline double bezierInterpol0(
 	return t * y2 + (1 - t) * y1;
 }
 
-static inline double bezierInterpol10(
-	double x1, double y1, double dy1,
-	double x2, double y2,
-	double x)
-{
-	double deltaX = x2 - x1;
-	double df0 = dy1 * deltaX;
-	double t = (x - x1) / deltaX;
-	double s = 1 - t;
-	return t * (t * y2 + s * df0) + s * (1 + t) * y1;
-}
-
-static inline double bezierInterpol01(
-	double x1, double y1,
-	double x2, double y2, double dy2,
-	double x)
-{
-	double deltaX = x2 - x1;
-	double df1 = dy2 * deltaX;
-	double t = (x - x1) / deltaX;
-	double s = 1 - t;
-	return t * ((2 - t) * y2 - s * df1) + s * s * y1;
-}
-
-static inline double bezierInterpol11_flat(
+static inline double bezierInterpol_quadraticLeftFlat(
 	double x1, double y1,
 	double x2, double y2,
 	double x)
 {
+	// Quadratic centered at (x1,y1) going through (x2,y2)
+	// f(t) = y1 + A(x-x1)^2
+
+	// f(x2) = y2
+	// y1 + A(x2-x1)^2 = y2
+	// A = (y2-y1) / (x2-x1)^2
+	// f(t) = y1 + (y2-y1)(x-x1)^2 / (x2-x1)^2
+
+	double dx1 = x - x1;
+	double dx = x2 - x1;
+	double dx1overdx = dx1 / dx;
+	return y1 + (y2-y1)*dx1overdx*dx1overdx;
+}
+
+static inline double bezierInterpol_cubicflat(
+	double x1, double y1,
+	double x2, double y2,
+	double x)
+{
+	// Cubic with derivative 0 at (x1,y1) and (x2,y2)
 	// if x1,x2 = 0,1:
 	//f(0) = A
 	//f(1) = C
@@ -64,27 +62,6 @@ static inline double bezierInterpol11_flat(
 	return C*t*t*(1 + 2*s) + A*s*s*(1 + 2*t);
 }
 
-static inline double bezierInterpol11(
-	double x1, double y1, double dy1,
-	double x2, double y2, double dy2,
-	double x)
-{
-	// if x1,x2 = 0,1:
-	//f(0) = A
-	//f(1) = C
-	//f'(0) = B
-	//f'(1) = D
-	//f(t) = t^2[ t C + (1-t) (3C-D) ]
-	//     + (1-t)^2 [ t (3A+B) + (1-t) A ]
-
-	double deltaX = x2 - x1;
-	double A = y1;
-	double B = dy1 * deltaX;
-	double C = y2;
-	double D = dy2 * deltaX;
-	double t = (x - x1) / deltaX;
-	double s = 1 - t;
-	return t * t * (t * C + s * (3 * C - D)) + s * s * (t * (3 * A + B) + s * A);
-}
+////////////////////////////////////////////////
 
 #endif

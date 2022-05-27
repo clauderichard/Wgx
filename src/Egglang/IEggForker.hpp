@@ -11,19 +11,10 @@ using namespace std;
 
 ////////////////////////////////////////////////
 
-struct NoEventsLeft
-{
-};
-struct OfficialEnd
-{
-};
-
-////////////////////////////////////////////////
-
 struct EggForkerThread
 {
 	shared_ptr<IEgg> _egg;
-	GenTime _timeToNext;
+	EggTime _timeToNext;
 	bool _isPlaying;
 	bool _isDone;
 };
@@ -40,9 +31,8 @@ class IEggForker : public IEgg
 	////////////////////////////////////////////////
 
 	IEggForker();
-	IEggForker(vector<shared_ptr<IEgg>> eggs);
 
-	void addPart(shared_ptr<IEgg> gen);
+	void addPart(shared_ptr<IEgg>);
 	void addOfficialEnd();
 	void addDeath();
 

@@ -1,13 +1,13 @@
-#ifndef __GENLANGSYNTHESIZER_HPP__
-#define __GENLANGSYNTHESIZER_HPP__
+#ifndef __EGGLANGSYNTHESIZER_HPP__
+#define __EGGLANGSYNTHESIZER_HPP__
 
 #include <memory>
-#include "Wave/Synthesizer.hpp"
+#include "Wave/ISynthesizer.hpp"
 using namespace std;
 
 ////////////////////////////////////////////////
 
-extern shared_ptr<Synthesizer> g_genlangSynthesizer;
+extern shared_ptr<ISynthesizer> g_egglangSynthesizer;
 
 ////////////////////////////////////////////////
 

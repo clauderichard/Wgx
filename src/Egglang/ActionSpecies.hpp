@@ -8,8 +8,8 @@ using namespace std;
 
 ////////////////////////////////////////////////
 
-extern shared_ptr<IEventAction> g_genlangNoteAction;
-extern shared_ptr<IEventAction> g_genlangRestAction;
+extern shared_ptr<IEventAction> g_egglangNoteAction;
+extern shared_ptr<IEventAction> g_egglangRestAction;
 
 void actionSpeciesInitialize();
 

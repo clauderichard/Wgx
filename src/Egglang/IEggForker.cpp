@@ -2,6 +2,7 @@
 #include "IEggForker.hpp"
 #include "Common/Crash.hpp"
 #include "ActionSpecies.hpp"
+#include "EggExceptions.hpp"
 using namespace std;
 
 ////////////////////////////////////////////////
@@ -11,17 +12,6 @@ IEggForker::IEggForker()
 		_deathIndex(SIZE_MAX),
 		_nextEventIndex(SIZE_MAX),
 		_numPlayingThreads(0) {}
-IEggForker::IEggForker(vector<shared_ptr<IEgg>> eggs)
-	: _officialEndIndex(SIZE_MAX),
-		_deathIndex(SIZE_MAX),
-		_nextEventIndex(SIZE_MAX),
-		_numPlayingThreads(0)
-{
-	for (auto &e : eggs)
-	{
-		addPart(e);
-	}
-}
 
 void IEggForker::onThreadEvent(size_t threadIndex, Event &e) {}
 
@@ -64,7 +54,7 @@ Event IEggForker::pop()
 		{
 			// return noop event
 			Event e;
-			e._action = g_genlangRestAction;
+			e._action = g_egglangRestAction;
 			e._info._postLag = forward();
 			return e;
 		}

@@ -1,0 +1,34 @@
+
+Defaults = {
+	pitch = $pitch;
+	freq = pitch;
+
+    waveTri = phase [0,1 -- 0.5,-1 -- 1,1];
+    waveSmooth = phase [0,1 ~~ 0.5,-1 ~~ 1,1];
+        
+    out = wave / 10;
+};
+
+
+voice Ding = {
+	phase = phaser freq;
+    wave = waveSmooth;
+};
+
+voice Flute = {
+    phase = phaser freq;
+    wave = waveTri;
+};
+
+
+-----------------------------------------
+
+{
+
+	@Flute loop {
+		{ {acec}x2}
+		{ {bceg} {degB} }
+	} ^24
+
+}/ 4.7 v1 
+

@@ -1,0 +1,15 @@
+#ifndef __EGGEXCEPTIONS_HPP__
+#define __EGGEXCEPTIONS_HPP__
+
+////////////////////////////////////////////////
+
+struct NoEventsLeft
+{
+};
+struct OfficialEnd
+{
+};
+
+////////////////////////////////////////////////
+
+#endif

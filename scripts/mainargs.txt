@@ -1,8 +1,7 @@
 
-waveScriptName = ex
-genScriptName = ex
+wgxScriptName = VolcanicTrek
 
-playDirect = 0
+playDirect = 1
 
-outFileName = ex
-outSeconds = 120
+outFileName = VolcanicTrek
+outSeconds = 1

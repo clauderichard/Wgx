@@ -44,7 +44,7 @@ class ParseTree
 	ParseTree getChild(size_t index) const;
 	ParseTree getValuedChild(size_t index) const;
 
-	void print(const map<TkType, string> &tkTypeReprs, size_t spaces) const;
+	void print(const map<TkType, string> &tkTypeReprs, size_t spaces, bool printChildren = false) const;
 
   private:
 	ParseTree(shared_ptr<ParseTreeNode> node);

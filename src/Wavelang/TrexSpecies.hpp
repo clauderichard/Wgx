@@ -2,10 +2,10 @@
 #define __TREXSPECIES_HPP__
 
 #include "Common/SampleRate.hpp"
-#include "ITrex.hpp"
-#include "BezierPointSpec.hpp"
+#include "Common/Capacities.hpp"
+#include "Jurassic/ITrex.hpp"
 #include "Util/BezierCurves.hpp"
-#include "RealFunc.hpp"
+#include "Jurassic/RealFunc.hpp"
 #include <vector>
 #include <cstdlib>
 using namespace std;
@@ -193,6 +193,20 @@ class TrexFunc2 : public ITrex
 
 ////////////////////////////////////////////////
 
+struct BezierPointSpec0
+{
+	crealp _x;
+	crealp _y;
+};
+
+enum BezierLinkType
+{
+	LINEAR = 0,
+	QUADRATICFLATLEFT,
+	QUADRATICFLATRIGHT,
+	CUBICFLAT
+};
+
 // Assume x goes rightward, sometimes going
 // back to leftX suddenly, like a phase.
 // X should never go beyond rightmost x in pts
@@ -201,7 +215,7 @@ class TrexBezierCurves0 : public ITrex
   public:
 	TrexBezierCurves0(
 		vector<BezierPointSpec0> pts,
-		vector<bool> bs,
+		vector<BezierLinkType> bs,
 		crealp x)
 		: _pts(pts),
 		  _bs(bs),
@@ -273,17 +287,26 @@ class TrexBezierCurves0 : public ITrex
 		auto x2 = _curPiece->_xRight;
 		auto y2 = _curPiece->_yRight;
 
-		if (_curPiece->_link)
+		switch(_curPiece->_link)
 		{
-			// _result = bezierInterpol11(
-			// 	*x1, *y1, 0, *x2, *y2, 0, x);
-			_result = bezierInterpol11_flat(
-				*x1, *y1, *x2, *y2, x);
-		}
-		else
-		{
-			_result = bezierInterpol0(
-				*x1, *y1, *x2, *y2, x);
+			case LINEAR:
+				_result = bezierInterpol_linear(
+					*x1, *y1, *x2, *y2, x);
+				break;
+			case QUADRATICFLATLEFT:
+				_result = bezierInterpol_quadraticLeftFlat(
+					*x1, *y1, *x2, *y2, x);
+				break;
+			case QUADRATICFLATRIGHT:
+				_result = bezierInterpol_quadraticLeftFlat(
+					*x2, *y2, *x1, *y1, x);
+				break;
+			case CUBICFLAT:
+				_result = bezierInterpol_cubicflat(
+					*x1, *y1, *x2, *y2, x);
+				break;
+			default:
+				CRASH("what you doing here?");
 		}
 
 		_prevX = x;
@@ -310,11 +333,11 @@ class TrexBezierCurves0 : public ITrex
 		crealp _xRight;
 		crealp _yLeft;
 		crealp _yRight;
-		bool _link;
+		BezierLinkType _link;
 	};
 
 	vector<BezierPointSpec0> _pts;
-	vector<bool> _bs;
+	vector<BezierLinkType> _bs;
 	crealp _x;
 
 	vector<BezierPiece0> _pieces;
@@ -326,30 +349,36 @@ class TrexBezierCurves0 : public ITrex
 
 ////////////////////////////////////////////////
 
-class TrexNoise : public ITrex
+class TrexRandom : public ITrex
 {
   public:
-	TrexNoise() {
+	TrexRandom(crealp minValue, crealp maxValue)
+		: _minValue(minValue),
+		  _maxValue(maxValue)
+	{
 		srand(0);
 	}
 
-	~TrexNoise() {}
+	~TrexRandom() {}
+
+	double getRand(double a, double b)
+	{
+		return a + (rand()*(b-a)) / RAND_MAX;
+	}
 
 	void eval()
 	{
-		int n = 9000;
-		int r = rand() % n;
-		_result = (r*1.0)/n;
+		_result = getRand(*_minValue, *_maxValue);
 	}
 
 	ITrex *copy()
 	{
-		return new TrexNoise();
+		return new TrexRandom(_minValue, _maxValue);
 	}
 
 	TrexArgList getArgs()
 	{
-		return TrexArgList{};
+		return TrexArgList{&_minValue, &_maxValue};
 	}
 
 	bool introducesChange() const
@@ -359,9 +388,173 @@ class TrexNoise : public ITrex
 
 	void print(CrealpNamer &n) const
 	{
-		cout << "noise";
+		cout << "random(" << n[_minValue] << "," << n[_maxValue] << ")";
+	}
+	
+  private:
+    crealp _minValue;
+    crealp _maxValue;
+
+};
+
+////////////////////////////////////////////////
+
+class TrexPrev : public ITrex
+{
+  public:
+	TrexPrev(crealp arg)
+		: _arg(arg),
+		  _prevValue(0)
+	{
 	}
 
+	~TrexPrev() {}
+
+	void eval()
+	{
+		_result = _prevValue;
+		_prevValue = *_arg;
+	}
+
+	ITrex *copy()
+	{
+		return new TrexPrev(_arg);
+	}
+
+	TrexArgList getArgs()
+	{
+		return TrexArgList{&_arg};
+	}
+
+	bool introducesChange() const
+	{
+		return true;
+	}
+
+	void print(CrealpNamer &n) const
+	{
+		cout << "prev " << n[_arg];
+	}
+	
+  private:
+    crealp _arg;
+    double _prevValue;
+
+};
+
+////////////////////////////////////////////////
+
+class TrexChangeWhenLeft : public ITrex
+{
+  public:
+	TrexChangeWhenLeft(crealp cond, crealp val)
+		: _cond(cond),
+		  _val(val),
+		  _evaled(false),
+		  _prevCond(1)
+	{
+	}
+
+	~TrexChangeWhenLeft() {}
+
+	void eval()
+	{
+		if (!_evaled || _prevCond > *_cond)
+		{
+			_evaled = true;
+			_result = *_val;
+		}
+		_prevCond = *_cond;
+	}
+
+	ITrex *copy()
+	{
+		return new TrexChangeWhenLeft(_cond, _val);
+	}
+
+	TrexArgList getArgs()
+	{
+		return TrexArgList{&_cond, &_val};
+	}
+
+	bool introducesChange() const
+	{
+		return true;
+	}
+
+	void print(CrealpNamer &n) const
+	{
+		cout << "onleft " << n[_cond] << " -> " << n[_val];
+	}
+	
+  private:
+    crealp _cond;
+    crealp _val;
+	bool _evaled;
+	double _prevCond;
+
+};
+
+////////////////////////////////////////////////
+
+class TrexDelay : public ITrex
+{
+  public:
+	TrexDelay(crealp input, crealp delay, bool allocat = false)
+		: _input(input),
+		  _delay(delay),
+		  _recordedSamples(allocat ? CAPACITY_TREXDELAY_BUFFERSIZE : 0, 0.0),
+		  _writePos(0) {}
+	~TrexDelay() {}
+
+	void eval()
+	{
+		size_t delaySamples = (size_t)(*_delay * WGX_SAMPLESPERSECOND);
+		if (delaySamples > CAPACITY_TREXDELAY_BUFFERSIZE)
+		{
+			cout << "CAPACITY_TREXDELAY_BUFFERSIZE ";
+			cout << CAPACITY_TREXDELAY_BUFFERSIZE;
+			cout << " cannot handle delay of ";
+			cout << *_delay << " seconds." << endl;
+			CRASH("Delay too big")
+		}
+		size_t readPos = (_writePos + CAPACITY_TREXDELAY_BUFFERSIZE - delaySamples) % CAPACITY_TREXDELAY_BUFFERSIZE;
+		_result = _recordedSamples[readPos];
+		_recordedSamples[_writePos] = *_input;
+		_writePos = (_writePos + 1) % CAPACITY_TREXDELAY_BUFFERSIZE;
+	}
+
+	ITrex *copy()
+	{
+		return new TrexDelay(_input, _delay, true);
+	}
+
+	TrexArgList getArgs()
+	{
+		return TrexArgList{&_input, &_delay};
+	}
+
+	void reset()
+	{
+		_recordedSamples.assign(CAPACITY_TREXDELAY_BUFFERSIZE, 0.0);
+		_writePos = 0;
+	}
+
+	bool introducesChange() const
+	{
+		return true;
+	}
+
+	void print(CrealpNamer &n) const
+	{
+		cout << "delay " << n[_delay] << " " << n[_input];
+	}
+
+  private:
+	crealp _input;
+	crealp _delay;
+	vector<double> _recordedSamples;
+	size_t _writePos;
 };
 
 ////////////////////////////////////////////////

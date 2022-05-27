@@ -1,0 +1,149 @@
+
+Defaults = {
+    pi = 3.1415926535897; tau = 2*pi;
+    baseFreq = 440; semitoneFreqFactor = 2**(1/12);
+	time = timer; timeFrac = time / $duration;
+	pitch = $pitch + octave*12; octave = 0;
+	freq = baseFreq * semitoneFreqFactor**pitch;
+	phase = phaser freq;
+
+    waveSin = sin(phase * tau);
+    waveSawtooth = phase;
+    waveSquare = phase [0,1 -- 0,-1 -- 0.5,-1 -- 0.5,1 -- 1,1];
+    waveSquareIsh(delta) = phase [0,1 -- 
+        delta,-1 -- 0.5,-1 -- 
+        0.5+delta,1 -- 1,1];
+    waveTri = phase [0,1 -- 0.5,-1 -- 1,1];
+    waveTriOblong(x) = phase [0,1 -- x,-1 -- 1,1];
+    waveSmooth = phase [0,1 ~~ 0.5,-1 ~~ 1,1];
+    waveTing = phase [0,1 ~~ 
+    	0.25,-0.5 ~~ 0.5,0.5 ~~
+    	0.75,-1 ~~ 1,1];
+    wave2Peaks = phase [0,1 ~~ wave2PeaksDelta,-1 ~~ 0.5,1 ~~ (1-wave2PeaksDelta),-1 ~~ 1,1];
+    #waveWhat = phase [0,1 ~~ (0.5-waveWhatDelta),0 ~~ 0.5,0.5 ~~ (0.5+waveWhatDelta),-1 ~~ 1,1];
+    waveWhat(delta) = phase [0,1 ~~ (0.5-delta),0 ~~ 0.5,0.5 ~~ (0.5+delta),-1 ~~ 1,1];
+    waveNes = phase [0,0 -- 0.25,1 -- 0.75,-1 -- 0.75,0 -- 1,1];
+    waveNes2 = phase [0,0 -- 0.5,1 -- 0.5,0 -- 1,-1];
+	waveDoubleTri(x) = phase [0,-1 -- (x/2),1 -- x,-1 -- (1+x)/2,1 -- 1,-1];
+
+    #waveSquareIshDelta = 0.1;
+    wave2PeaksDelta = 0.2;
+    waveWhatDelta = 0.2;
+        
+    ampDing = timeFrac [0,0 -- 0.01,1 -- 0.5,0.7 -- 1,0];
+    ampDing2 = timeFrac [0,0 -- 0.005,1 -- 0.2,0.6 -- 0.4,0.4 -- 1,0];
+    ampAah = timeFrac [0,0 -- 0.95,1 -- 1,0];
+    ampTri = timeFrac [0,0 -- 0.5,1 -- 1,0];
+    ampSquarish = timeFrac [0,0 -- 
+    	ampSquarishDelta,1 -- 
+    	(1-ampSquarishDelta),1 -- 1,0];
+    ampSquarishDelta = 0.02;
+    ampBoing = (timeFrac [0,0 -- 0.5,1 -- 1,0]) * (1 + sin(timeFrac*tau))/2;
+
+    vol = 1.0;
+    out = amp * wave * vol;
+    
+    in = ($inL + $inR) / 2;
+};
+
+
+voice Ding = {
+    #amp = ampDing2;
+	amp = time [0,0 ~~ 0.1,1 ~~ ($duration-0.1),1 ~~ $duration,0];
+    #amp = time [0,0 -- 0.035,0 -- 0.04,1 
+    #	-- 0.2,0.6 -- 0.4,0.4 -- $duration,0];
+    vol = 0.02;
+    #wave = waveSmooth;
+	#wave = waveSquareIsh(0.01);
+	#wave = waveWhat(0.3);
+	xphase = phaser xfreq;
+	xfreq = 2 + 8 * timeFrac;
+	pha = (phase-0.5)*0.05;
+	
+    #wave = sin(pha**pha);
+    octave = -2;
+    #waveWhatDelta = 0.05 + 0.2*(1-timeFrac);
+	f(x) = x;
+	#wave = f(phase);
+
+	wave1 = waveDoubleTri(0.2 + 0.6 * xphase[0,0--0.5,1--1,0]);
+    wave2 = delay (0.1 + 0.3 * timeFrac), wave1;
+    wave = wave1 + wave2;
+    
+    wave = sin(tau*phase);
+    amp = ampDing2;
+};
+
+voice Bass = {
+	vol = 0.012;
+	octave = -3;
+	pha = (phase-0.5)*0.05;
+    wave = sin(pha**pha);
+	#wave = waveSquareIsh(0.1 + 0.1*timeFrac);
+	#wave = phase [0,-1 -- 0.97,1 -- 1,-1];
+	#wave = sin (phase*tau);
+	pitch = timeFrac [0,$pitch+0.5 ~~ 1,$pitch]
+		+ 12*octave;
+	amp = time [0,0 -- 0.01,1 
+		-- 0.03,0.6
+		-- ($duration-0.02),0.4 -- $duration,0];
+};
+
+Echoes =
+{
+	ech(i,g,d) = i + g * delay d, i;
+	echs(i,g,d,o) = i + g * delay d, o;
+	eeee(d,o) = delay d, o;
+    gain1 = 0.7;
+    gain2 = 0.7;
+	gain3 = 0.7;
+	gain4 = 0.1;
+    del1 = 0.1;
+    del2 = 0.22;
+	del3 = 0.5;
+	del4 = 0.55;
+    x1 = echs($inL, gain1, del1, x1);
+	x2 = echs(  x1, gain2, del2, x2);
+    x3 = echs(  x2, gain3, del3, x3);
+	x4 = echs(  x3, gain4, del4, x4);
+    out = x3;
+};
+
+EchoesOld =
+{
+	ech(i,g,d) = i + g * delay d, i;
+	echs(i,g,d,o) = i + g * delay d, o;
+    gain1 = 0.9;
+    gain2 = 0.5;
+	gain3 = 0.3;
+	gain4 = 0.2;
+    del1 = 0.1;
+    del2 = 0.22;
+	del3 = 0.3;
+	del4 = 0.5;
+    x1 = ech($inL, gain1, del1);
+    x2 = ech(  x1, gain2, del2);
+    x3 = ech(  x2, gain3, del3);
+	out = echs(x3, gain4, del4, out);
+};
+
+Ding -> Echoes;
+Bass -> Echoes;
+
+-----------------------------------------
+
+<
+	@Ding
+	<
+		A *64
+		C*64
+		loop {EFGC EF^G^A+ EGA+C+ A+C+E+vE+}*4_6
+	>
+	
+	@Bass
+	loop
+	{
+		#a8 aa2 a3 a10 aa2 a3 a2
+		a24 aa2 a3 a2
+	} /8
+>

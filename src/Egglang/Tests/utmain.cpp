@@ -8,7 +8,7 @@
 using namespace std;
 
 bool midline = false;
-GenLang genlang;
+Egglang egglang;
 
 struct Wfail
 {
@@ -25,7 +25,7 @@ void nextEv(shared_ptr<IEgg> &egg, Event & ev, double &start)
 	{
 		start += ev._info._postLag;
 		ev = egg->pop();
-		if (ev._action != g_genlangRestAction)
+		if (ev._action != g_egglangRestAction)
 			break;
 	}
 }
@@ -34,8 +34,8 @@ void eggeq(const string & x, const string & y, int numE)
 {
 	try
 	{
-		auto egg1 = genlang.decode(x);
-		auto egg2 = genlang.decode(y);
+		auto egg1 = egglang.decode(x);
+		auto egg2 = egglang.decode(y);
 		Event e1;
 		e1._info._postLag=0;
 		Event e2;

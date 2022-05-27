@@ -2,7 +2,7 @@
 #define __SYMPHONY_HPP__
 
 #include "Wave/IWaveSampler.hpp"
-#include "Wave/Synthesizer.hpp"
+#include "Wave/ISynthesizer.hpp"
 #include "Egg/IEgg.hpp"
 #include "Common/Crash.hpp"
 #include "Common/SampleRate.hpp"
@@ -12,46 +12,14 @@ using namespace std;
 class Symphony : public IWaveSampler
 {
   public:
-	Symphony(shared_ptr<Synthesizer> synth, shared_ptr<IEgg> gen)
-		: _synthesizer(synth),
-		  _generator(gen),
-		  _timeToNextEvent(0),
-		  _noMoreNotes(false) {}
-	~Symphony()
-	{
-	}
+	Symphony(shared_ptr<ISynthesizer>, shared_ptr<IEgg>);
+	~Symphony();
 
-	void genSample()
-	{
-		if (!_noMoreNotes)
-		{
-			_timeToNextEvent -= 1.0 / WGX_SAMPLESPERSECOND;
-			while (_timeToNextEvent <= 0)
-			{
-				Event next;
-				try
-				{
-					next = _generator->pop();
-				}
-				catch (bool)
-				{
-					_noMoreNotes = true;
-					break;
-				}
-
-				next._action->execute(next._info);
-
-				_timeToNextEvent = next._info._postLag;
-			}
-		}
-		_synthesizer->genSample();
-		_left = _synthesizer->_left;
-		_right = _synthesizer->_right;
-	}
+	void genSample();
 
   private:
-	shared_ptr<Synthesizer> _synthesizer;
-	shared_ptr<IEgg> _generator;
+	shared_ptr<ISynthesizer> _synthesizer;
+	shared_ptr<IEgg> _egg;
 	double _timeToNextEvent;
 	bool _noMoreNotes;
 };

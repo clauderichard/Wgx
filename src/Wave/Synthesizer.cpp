@@ -44,6 +44,8 @@ Synthesizer::Synthesizer()
 {
 }
 
+Synthesizer::~Synthesizer() {}
+
 size_t Synthesizer::addInstrument(shared_ptr<IVoice> voice)
 {
     _instruments.emplace_back(new Instrument(voice));

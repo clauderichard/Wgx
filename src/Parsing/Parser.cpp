@@ -111,8 +111,11 @@ void ParserRuleTree::addReversePath(
 Parser::Parser()
 	: _matchingTree(-1),
 	  _rulesetInitialized(false),
-	  _logSuccess(false)
+	  _logSuccess(false),
+	  _inputTokens(NULL),
+	  _stackTokens(1)
 {
+	setTkTypeRepr(TKTYPE_BOF, "BOF");
 	setTkTypeRepr(TKTYPE_EOF, "EOF");
 }
 Parser::~Parser() {}
@@ -135,13 +138,7 @@ void Parser::initialize()
 	{
 		auto rule = _rules[rulI];
 		_matchingTree
-			//.buildPath(TKTYPE_EOF)
 			.addReversePath(rule._stackTypes, rulI);
-		//for (auto nx : _topToNextTrans[rule._resultType])
-		//		{
-		//			_matchingTree.buildPath(nx)
-		//				->addReversePath(rule._stackTypes, rulI);
-		//		}
 	}
 	//cout << "Parser initialized!" << endl;
 }
@@ -166,24 +163,19 @@ void Parser::topToNextTrans()
 	_topToNextTrans = transUpL * _prevToBottomTrans;
 }
 
-int Parser::getRuleMatch(
-	const ParseStack &stackTokens,
-	Token &nextInputTok) const
+int Parser::getRuleMatch() const
 {
 	int ret = -1;
 	const ParserRuleTree *tree = &_matchingTree;
 
 	try
 	{
-		//tree = tree->getChild(nextInputTok._type);
-		for (size_t i1 = stackTokens.size(); i1 > 0; i1--)
+		for (size_t i1 = _stackTokens.size(); i1 > 0; i1--)
 		{
-			tree = tree->getChild(stackTokens[i1 - 1].getToken()._type);
+			tree = tree->getChild(_stackTokens[i1 - 1].getToken()._type);
 			if (tree->_ruleIndex >= 0 &&
 				ruleWorksWithPreviousAndNext(
-					stackTokens,
-					_rules[tree->_ruleIndex],
-					nextInputTok))
+					_rules[tree->_ruleIndex]))
 			{
 				ret = tree->_ruleIndex;
 			}
@@ -196,47 +188,55 @@ int Parser::getRuleMatch(
 	return ret;
 }
 
-bool Parser::isNextTokenUnexpected(
-	ParseStack &stackTokens,
-	Token &nextInputTok)
+bool Parser::isNextTokenUnexpected()
 {
-	if (stackTokens.size() == 0)
+	if (_nextInputIndex >= _inputTokens->size())
 	{
 		return false;
 	}
-	TkType nextType = nextInputTok._type;
-	if (nextType == TKTYPE_EOF)
+	else if (_stackTokens.size() == 0)
 	{
 		return false;
-	}
-	TkType stackTopType = stackTokens[stackTokens.size() - 1].getToken()._type;
-	return !_topToNextTrans.hasArrow(stackTopType, nextType);
-}
-
-bool Parser::ruleWorksWithPreviousAndNext(
-	const ParseStack &stackTokens,
-	const ParserRule &rule,
-	const Token &nextToken) const
-{
-	size_t ruleSize = rule._stackTypes.size();
-
-	TkType ruleResultType = rule._resultType;
-	TkType nextType = nextToken._type;
-
-	bool prevGood = true;
-	if (stackTokens.size() == ruleSize)
-	{
-		prevGood = true;
 	}
 	else
 	{
-		TkType stackPrevType = stackTokens[stackTokens.size() - ruleSize - 1].getToken()._type;
+		TkType nextType = getNextTkType();
+		TkType stackTopType = _stackTokens[_stackTokens.size() - 1].getToken()._type;
+		return !_topToNextTrans.hasArrow(stackTopType, nextType);
+	}
+}
+
+bool Parser::ruleWorksWithPreviousAndNext(
+	const ParserRule &rule) const
+{
+	size_t ruleSize = rule._stackTypes.size();
+	TkType ruleResultType = rule._resultType;
+
+	bool prevGood = true;
+	bool nextGood = true;
+	if (_stackTokens.size() > ruleSize)
+	{
+		TkType stackPrevType = _stackTokens[_stackTokens.size() - ruleSize - 1].getToken()._type;
 		prevGood = _prevToBottomTrans.hasArrow(
 			stackPrevType, ruleResultType);
 	}
-	return prevGood &&
-		   (nextType == TKTYPE_EOF ||
-			_topToNextTrans.hasArrow(ruleResultType, nextType));
+	if (_nextInputIndex < _inputTokens->size())
+	{
+		nextGood = _topToNextTrans.hasArrow(ruleResultType, getNextTkType());
+	}
+	return prevGood && nextGood;
+}
+
+TkType Parser::getNextTkType() const
+{
+	if (_nextInputIndex >= _inputTokens->size())
+	{
+		return TKTYPE_NONE;
+	}
+	else
+	{
+		return _inputTokens->operator[](_nextInputIndex)._type;
+	}
 }
 
 ParseTree Parser::parse(vector<Token> &tokens)
@@ -247,52 +247,47 @@ ParseTree Parser::parse(vector<Token> &tokens)
 		_rulesetInitialized = true;
 	}
 
-	// Input stream
-	Token eofToken;
-	eofToken._type = TKTYPE_EOF;
-	tokens.push_back(eofToken);
-	size_t nextInputIndex = 0;
-
-	// stack
-	ParseStack st(tokens.size());
+	_inputTokens = &tokens;
+	_stackTokens = ParseStack(tokens.size());
+	_nextInputIndex = 0;
 
 	while (true)
 	{
-		if (nextInputIndex >= tokens.size())
+		if (_nextInputIndex >= _inputTokens->size())
 		{
-			// EOF passed, so Done!
-			// expect [finalvalue,EOF]
-			if (st.size() == 2)
+			auto ruleMatch = getRuleMatch();
+			if (ruleMatch >= 0)
 			{
-				if (_logSuccess)
+				_stackTokens.reduce(_rules[ruleMatch]);
+				if (_stackTokens.size() == 1)
 				{
-					cout << "Parser SUCCESS!!!" << endl;
+					if (_logSuccess)
+					{
+						cout << "Parser SUCCESS!!!" << endl;
+					}
+					return _stackTokens[0];
 				}
-				return st[0];
 			}
-			else
+			cout << "Parser FAILED! Here's the stack:" << endl;
+			for (size_t i = 0; i < _stackTokens.size(); i++)
 			{
-				cout << "Parser FAILED! Here's the stack:" << endl;
-				for (size_t i = 0; i < st.size(); i++)
-				{
-					st[i].print(_tkTypeReprs, 2);
-				}
-				cout << endl;
-				CRASH("Parser failed!");
+				_stackTokens[i].print(_tkTypeReprs, 2, false);
 			}
+			CRASH("Parser failed!");
 		}
-		auto ruleMatch = getRuleMatch(st, tokens[nextInputIndex]);
+
+		auto ruleMatch = getRuleMatch();
 		if (ruleMatch >= 0)
 		{
-			st.reduce(_rules[ruleMatch]);
+			_stackTokens.reduce(_rules[ruleMatch]);
 		}
 		else
 		{
-			st.pushToken(tokens[nextInputIndex++]);
-			if (nextInputIndex < tokens.size() &&
-				isNextTokenUnexpected(st, tokens[nextInputIndex]))
+			_stackTokens.pushToken(_inputTokens->operator[](_nextInputIndex++));
+			if (_nextInputIndex < _inputTokens->size() &&
+				isNextTokenUnexpected())
 			{
-				auto &badtok = tokens[nextInputIndex];
+				auto &badtok = _inputTokens->operator[](_nextInputIndex);
 				cout << "Unexpected token of type ";
 				cout << getTkTypeRepr(badtok._type);
 				cout << endl
@@ -302,9 +297,9 @@ ParseTree Parser::parse(vector<Token> &tokens)
 				cout << endl
 					 << "  Parsed stuff so far:"
 					 << endl;
-				for (size_t i = 0; i < st.size(); i++)
+				for (size_t i = 0; i < _stackTokens.size(); i++)
 				{
-					st[i].print(_tkTypeReprs, 2);
+					_stackTokens[i].print(_tkTypeReprs, 2);
 				}
 				throw range_error("Unexpected token");
 			}

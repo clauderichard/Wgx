@@ -1,6 +1,7 @@
 #ifndef __SYNTHESIZER_HPP__
 #define __SYNTHESIZER_HPP__
 
+#include "ISynthesizer.hpp"
 #include "IVoice.hpp"
 #include "IEffect.hpp"
 #include "Common/Crash.hpp"
@@ -8,6 +9,8 @@
 #include "Util/FastArray.hpp"
 #include <vector>
 using namespace std;
+
+////////////////////////////////////////////////
 
 struct Instrument
 {
@@ -26,6 +29,8 @@ struct Instrument
 
 };
 
+////////////////////////////////////////////////
+
 struct PlayingVoiceInfo
 {
     Workforce<IVoice*>::Worker _voiceWorker;
@@ -36,6 +41,8 @@ struct PlayingVoiceInfo
     PlayingVoiceInfo();
 };
 
+////////////////////////////////////////////////
+
 struct EffectInfo
 {
     shared_ptr<IEffect> _effectSharedPtr;
@@ -44,24 +51,26 @@ struct EffectInfo
     bool _hasDirectOutput;
 };
 
-class Synthesizer : public IWaveSampler
+////////////////////////////////////////////////
+
+class Synthesizer : public ISynthesizer
 {
 
   public:
 
     Synthesizer();
-    virtual ~Synthesizer(){}
+    virtual ~Synthesizer();
       
+    ////////////////////////////////////////////////
+    void initialize();
+    void waveOn(size_t instrumentIndex, size_t numSamples, std::initializer_list<double> params);
+    void genSample();
+    ////////////////////////////////////////////////
+
     size_t addInstrument(shared_ptr<IVoice> voice);
     size_t addEffect(shared_ptr<IEffect> effect);
     void connectInstrumentToEffect(size_t instrIndex, size_t effectIndex);
     void connectEffectToEffect(size_t inEffectIndex, size_t outEffectIndex);
-
-    void initialize();
-
-    void waveOn(size_t instrumentIndex, size_t numSamples, std::initializer_list<double> params);
-	  
-    void genSample();
 
   private:
     vector<shared_ptr<Instrument>> _instruments;
@@ -69,5 +78,7 @@ class Synthesizer : public IWaveSampler
     FastArray<EffectInfo> _effects;
 	  Workforce<IWaveSampler *> _outputs;
 };
+
+////////////////////////////////////////////////
 
 #endif
