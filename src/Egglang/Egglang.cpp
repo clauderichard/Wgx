@@ -2,6 +2,7 @@
 #include "Parsing/CharFunctions.hpp"
 #include "EgglangFunctions.hpp"
 #include "ActionSpecies.hpp"
+#include "Wave/StaticBezierSpec.hpp"
 #include <sstream>
 using namespace std;
 
@@ -12,6 +13,8 @@ enum EgglangTkTypes
 	GINT = 1,
 	GPITCH,
 	GREAL,
+	GGLOBVARNAME,
+	GEQUAL,
 	GEVENT,
 	GEXCL,
 	GLPAREN,
@@ -20,6 +23,8 @@ enum EgglangTkTypes
 	GGREATER,
 	GLBRACK,
 	GRBRACK,
+	GLSQUAREBRACK,
+	GRSQUAREBRACK,
 	GPIPE,
 	GPIPE2,
 	GRAND,
@@ -39,6 +44,11 @@ enum EgglangTkTypes
 	GX,
 	GREST,
 	GUNDERSLASH,
+	GCOMMA,
+	GBEZIER,
+	GBEZIERPT,
+	GBEZIERCURVE,
+	GBEZIERLINK,
 	GMAXLANGTKTYPES
 };
 
@@ -52,12 +62,15 @@ Egglang::Egglang()
 	////////////////////////////////////////////////
 	// Keywords and symbols
 
+	_language.addWord("=", GEQUAL);
 	_language.addWord("(", GLPAREN);
 	_language.addWord(")", GRPAREN);
 	_language.addWord("<", GSMALLER);
 	_language.addWord(">", GGREATER);
 	_language.addWord("{", GLBRACK);
 	_language.addWord("}", GRBRACK);
+	_language.addWord("[", GLSQUAREBRACK);
+	_language.addWord("]", GRSQUAREBRACK);
 	_language.addWord("loop", GLOOP);
 	_language.addWord("'", GREST);
 	_language.addWord("|", GPIPE);
@@ -76,6 +89,13 @@ Egglang::Egglang()
 	_language.addWord("x", GX);
 	
 	_language.addWord("<<", GINJ);
+	
+	_language.addWord(",", GCOMMA);
+
+	_language.addWordValue("--", GBEZIERLINK, StaticBezierLinkType::S_LINEAR);
+	_language.addWordValue("~-", GBEZIERLINK, StaticBezierLinkType::S_QUADRATICFLATLEFT);
+	_language.addWordValue("-~", GBEZIERLINK, StaticBezierLinkType::S_QUADRATICFLATRIGHT);
+	_language.addWordValue("~~", GBEZIERLINK, StaticBezierLinkType::S_CUBICFLAT);
 
 	////////////////////////////////////////////////
 	// Pitch, Note, Real
@@ -87,11 +107,15 @@ Egglang::Egglang()
 	_language.addParseRule(GEVENT, {GEVENT,GREAL}, {0,1}, gEventExpand);
 	_language.addParseRule(GEVENT, {GEXCL,GEVENT}, {1}, gEventSetIsStart);
 	_language.addParseRule(GEGG, {GEVENT}, {0}, gEggFromEvent);
+	_language.addParseRule(GEVENT, {GGLOBVARNAME,GEQUAL,GREAL}, {0,2}, gEventGlobVarEval);
+	_language.addParseRule(GEVENT, {GGLOBVARNAME,GEQUAL,GBEZIERCURVE}, {0,2}, gEventGradientStart);
 
 	TkState inInt = _language.addCharStar(charIsDigit, GINT, readReal);
 	TkState atDecimal = _language.addPostStarWord(".", GREAL, inInt);
 	_language.addCharStar(charIsDigit, GREAL, readReal, atDecimal);
 	_language.addUnaryParseRule(GREAL, GINT);
+	TkState inGlobVarName = _language.addCharStar(charIsGlobVarNameBegin, GGLOBVARNAME);
+	_language.addCharStar(charIsAlphanumeric, GGLOBVARNAME, inGlobVarName);
 
 	////////////////////////////////////////////////
 	// Voice name
@@ -99,6 +123,13 @@ Egglang::Egglang()
 	TkState inVoiceName = _language.addPostStarWord("@", GVOICENAME, 0);
 	_language.addCharStar(charIsAlphanumeric, GVOICENAME, gVoiceIndexFromNameWithAt, inVoiceName);
 	_language.addParseRule(GEGG, {GVOICENAME, GEGG}, {0, 1}, gVoiceNameGen);
+
+	////////////////////////////////////////////////
+	// Bezier curve
+
+	_language.addParseRule(GBEZIERPT, {GREAL, GCOMMA, GREAL}, {0, 2}, gBezierPtBuild);
+
+	_language.addListRule2(GBEZIERCURVE, GLSQUAREBRACK, GBEZIERPT, GBEZIERLINK, GRSQUAREBRACK, gBezierCurveBuild);
 
 	////////////////////////////////////////////////
 	// Sequence, Parallel, Loop

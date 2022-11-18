@@ -1,0 +1,170 @@
+
+Defaults = {
+    pi = 3.1415926535897; tau = 2*pi;
+    baseFreq = 440; semitoneFreqFactor = 2**(1/12);
+	time = timer; timeFrac = time / $duration;
+	pitch = $pitch + octave*12; octave = 0;
+	freq = baseFreq * semitoneFreqFactor**pitch;
+	phase = phaser freq;
+	
+    waveSin = sin(phase * tau);
+    waveSawtooth = phase;
+    waveSquare = phase [0,1 -- 0,-1 -- 0.5,-1 -- 0.5,1 -- 1,1];
+    waveSquareIsh = phase [0,1 -- 
+        waveSquareIshDelta,-1 -- 0.5,-1 -- 
+        0.5+waveSquareIshDelta,1 -- 1,1];
+    waveTri = phase [0,1 -- 0.5,-1 -- 1,1];
+    waveSmooth = phase [0,1 ~~ 0.5,-1 -- 1,1];
+    waveTing = phase [0,1 ~~ 
+    	0.25,-0.5 ~~ 0.5,0.5 ~~
+    	0.75,-1 ~~ 1,1];
+    wave2Peaks = phase [0,1 ~~ wave2PeaksDelta,-1 ~~ 0.5,1 ~~ (1-wave2PeaksDelta),-1 ~~ 1,1];
+    waveWhat = phase [0,1 ~~ (0.5-waveWhatDelta),0 ~~ 0.5,0.5 ~~ (0.5+waveWhatDelta),-1 ~~ 1,1];
+    waveNes = phase [0,0 -- 0.25,1 -- 0.75,-1 -- 0.75,0 -- 1,1];
+    waveNes2 = phase [0,0 -- 0.5,1 -- 0.5,0 -- 1,-1];
+
+    waveSquareIshDelta = 0.1;
+    wave2PeaksDelta = 0.2;
+    waveWhatDelta = 0.2;
+        
+    ampDing = timeFrac [0,0 -- 0.01,1 -- 0.5,0.7 -- 1,0];
+    ampDing2 = timeFrac [0,0 -- 0.007,1 -- 0.2,0.6 -- 0.4,0.4 -- 1,0];
+    ampAah = timeFrac [0,0 -- 0.95,1 -- 1,0];
+    ampTri = timeFrac [0,0 -- 0.5,1 -- 1,0];
+    ampSquarish = time [0,0 -- 
+    	ampSquarishDelta,1 -- 
+    	(1-ampSquarishDelta),1 -- 1,0];
+    ampSquarishDelta = 0.02;
+    ampBoing = (time [0,0 -- 0.5,1 -- 1,0]) * (1 + sin(time*tau))/2;
+
+    vol = 1.0;
+    out = amp * wave * vol;
+    
+    in = ($inL + $inR) / 2;
+};
+
+
+voice Ding = {
+    amp = ampDing2;
+    #amp = ampTri;
+    vol = 0.2;
+    wave = waveSin;
+    octave = 0;
+};
+
+voice Flute = {
+    #freq2 = freq * (1 + 0.004*sin(timeAbs*5));
+    #freq2 = freq;
+    #phase = phaser freq2;
+    ampp = time [0,0 -- 
+    	startUp,1 -- 
+    	($duration-endDrop),1 -- $duration,0];
+    amp = ampp * (1 + 0.05*sin(time*5));
+    startUp = 0.07;
+    endDrop = 0.05;
+    vol = 0.07;
+    wave = phase [0,-1 ~~ 0.5,1 -- 1,-1];
+    octave = 1;
+    waveWhatDelta = 0.05 + 0.2*(1-time);
+    wave2PeaksDelta = 0.03;
+    waveSquareIshDelta = 0.15;
+};
+
+Echoes =
+{
+	ech(i,g,d) = i + g * delay d, i;
+	echs(i,g,d,o) = i + g * delay d, o;
+	eeee(d,o) = delay d, o;
+	delf = 1;
+    gain1 = 0.7;
+    gain2 = 0.6;
+	gain3 = 0.5;
+    del1 = 0.1*delf;
+    del2 = 0.21*delf;
+	del3 = 0.45*delf;
+    x1 = ech($inL, gain1, del1, x1);
+	x2 = ech(  x1, gain2, del2, x2);
+    x3 = ech(  x1, gain3, del3, x3);
+    out = x2;
+    outR = x3;
+};
+
+#EchoesOld = {
+    #time = timer;
+    #gain = 0.95;
+    #gain2 = 0.7;
+    #l = (1+sin(time*5))/2;
+    #r = 1-l;
+    #x1 = echo 0.1 $inL gain;
+    #x2 = echo 0.22 x1 gain;
+    #outL2 = echo 0.5 x2 (gain/2);
+    #y1 = echo 0.1 $inR gain2;
+    #y2 = echo 0.22 y1 gain2;
+    #outR = echo 0.5 y2 (gain2);
+    #outL = echoes 0.26 $inL 0.4;
+    #outR2 = echoes 0.26 $inR 0.8;
+    #outL2 = outR;
+#};
+
+
+Ding -> Echoes;
+Flute -> Echoes;
+
+
+---------------
+
+<
+
+@Ding
+{
+	<aG> BCG e BCG ABCG e BCG
+	 a   BCG e BCG ABCG e BCG
+	
+	#loop
+	<
+		{
+			' E G E
+			E D E/2 ' 
+		}*32
+		{
+			{
+				{a BCG e BCG ABCG e BCG }x2
+				{av3 ABE dv1 ABE gv1 ABE dv1 ABE}x2
+			} x2
+			
+			{
+				{fGA+E+ FGA+E+}x4 v12
+				{eF^GD+ EF^GD+}x4 v12
+			}
+			{
+				{cGA+E+ CGA+E+} v12
+				{fB+C+G+ FB+C+G+} v12
+				{eA+D+F^+ EA+D+F^+}x4 v12
+			}
+		}
+	> x2
+}v1  / 4.7 _0.45
+
+@Flute
+{
+	'24
+	
+	{
+		'6
+		{
+			b2 {ef^}*3 g4 {bf^}*2 d*12
+			a*3 deA {B5'B6}/2 Ag^ e20 '2 } x2
+		
+		ef^ {gAB}*8 C6C2
+		{D5'D6}/2 C^C B19 '
+		{ed}*2 e7'g6A2
+		{f^e}/2 f23^
+	} x2
+	
+	'24
+
+}v1 / 4.7
+
+
+
+>

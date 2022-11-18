@@ -19,6 +19,7 @@ enum WaveLangTkTypes
 	WPARKARGS,
 	WPARKARGSLIST,
 	WNAME,
+	WGLOBVARNAME,
 	WVOICE,
 	WEFFECT,
 	WJNAME,
@@ -27,6 +28,7 @@ enum WaveLangTkTypes
 	WCOLON,
 	WCOMMA,
 	WPHASER,
+	WPHASERT,
 	WECHO,
 	WECHOES,
 	WDELAY,
@@ -74,8 +76,8 @@ enum WaveLangTkTypes
 	WBEZIER,
 	WBEZIERPT,
 	WBEZIERCURVE,
-	WREX2DARRAY,
 	WBEZIERLINK,
+	WREX2DARRAY,
 	WMAXLANGTKTYPES
 };
 
@@ -166,6 +168,7 @@ WaveLang::WaveLang()
 	_language.addWord("prev", WPREV);
 	_language.addWord("timer", WTIMER);
 	_language.addWord("phaser", WPHASER);
+	_language.addWord("phaserT", WPHASERT);
 	_language.addWord("echo", WECHO);
 	_language.addWord("echoes", WECHOES);
 	_language.addWord("delay", WDELAY);
@@ -209,10 +212,13 @@ WaveLang::WaveLang()
 	_language.addCharStar(charIsAlphanumeric, WNAME, inName);
 	TkState inJName = _language.addCharStar(charIsAlphaUpper, WJNAME);
 	_language.addCharStar(charIsAlphanumeric, WJNAME, inJName);
+	TkState inGlobVarName = _language.addCharStar(charIsGlobVarNameBegin, WGLOBVARNAME);
+	_language.addCharStar(charIsAlphanumeric, WGLOBVARNAME, inGlobVarName);
 
 	_language.addParseRule(WREXATOM, {WNAME}, {0}, rexVarFromName);
 	_language.addUnaryParseRule(WREAL, WINT);
 	_language.addParseRule(WREXATOM, {WREAL}, {0}, rexFromReal);
+	_language.addParseRule(WREXATOM, {WGLOBVARNAME}, {0}, rexGlobVarFromName);
 
 	////////////////////////////////////////////////
 	// Operator rules (generic)
@@ -257,6 +263,7 @@ WaveLang::WaveLang()
 	_language.addParseRule(WREXATOM, {WPREV,WREXATOM}, {1}, wPrevRex);
 	_language.addParseRule(WREXATOM, {WTIMER}, {}, wTimerRex);
 	_language.addParseRule(WREXATOM, {WPHASER, WREXATOM}, {1}, wPhaseRex);
+	_language.addParseRule(WREXATOM, {WPHASERT, WREXATOM}, {1}, wPhaseTRex);
 	_language.addParseRule(WREXATOM, {WDELAY, WREXATOM, WCOMMA, WREXATOM}, {1, 3}, wDelayRex);
 
 	////////////////////////////////////////////////

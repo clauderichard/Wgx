@@ -38,4 +38,18 @@ class ConstsSet : public ValuesSet
 
 ////////////////////////////////////////////////
 
+class ChangingValuesSet : public ValuesSet
+{
+  public:
+	ChangingValuesSet(size_t capacity);
+	
+	double *getOrAdd(const string &name);
+
+  private:
+	size_t _numVals;
+	map<string, size_t> _nameToIndex;
+};
+
+////////////////////////////////////////////////
+
 #endif

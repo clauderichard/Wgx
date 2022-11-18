@@ -3,5 +3,5 @@ wgxScriptName = VolcanicTrek
 
 playDirect = 1
 
-outFileName = VolcanicTrek
-outSeconds = 1
+outFileName = VolcanicTrek_vol
+outSeconds = 111

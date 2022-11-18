@@ -10,6 +10,8 @@ using namespace std;
 
 extern shared_ptr<IEventAction> g_egglangNoteAction;
 extern shared_ptr<IEventAction> g_egglangRestAction;
+extern shared_ptr<IEventAction> g_egglangGlobVarEvalAction;
+extern shared_ptr<IEventAction> g_egglangGradientStartAction;
 
 void actionSpeciesInitialize();
 

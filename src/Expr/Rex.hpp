@@ -33,6 +33,7 @@ class Rex
     static Rex getCustomFunParam(size_t index);
     static Rex getInputVar(size_t typeIndex, size_t index);
     static Rex getNamedVar(const string &name);
+    static Rex getGlobNamedVar(const string &name);
     static crealp getNewResultPlaceholder();
 
     bool dependsOnInputType(size_t type, RexProcessContext &prog, Rex self);

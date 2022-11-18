@@ -9,6 +9,7 @@ bool charIsAlpha(char c);
 bool charIsAlphaLower(char c);
 bool charIsAlphaUpper(char c);
 bool charIsAlphanumeric(char c);
+bool charIsGlobVarNameBegin(char c);
 
 double readReal(const string &s);
 

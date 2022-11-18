@@ -80,6 +80,8 @@ void EquationSet::Validate(RexProcessContext &prog)
             crealp newArg = prog._resultsMap[*arg];
             if (g_valuesBank.isConst(newArg))
                 continue;
+            if (g_valuesBank.isChangingVar(newArg))
+                continue;
             bool isInput = false;
             for(size_t i=0; i<2; i++)
             {

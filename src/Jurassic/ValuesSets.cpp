@@ -49,3 +49,28 @@ const double *ConstsSet::getOrAdd(const double &val)
 }
 
 ////////////////////////////////////////////////
+
+ChangingValuesSet::ChangingValuesSet(size_t capacity)
+	: ValuesSet(capacity),
+	  _numVals(0) {}
+
+double *ChangingValuesSet::getOrAdd(const string &name)
+{
+	try
+	{
+		size_t i = _nameToIndex.at(name);
+		return &(_vals[i]);
+	}
+	catch (out_of_range)
+	{
+		if (_numVals >= _vals.size())
+		{
+			throw out_of_range("Too many entries in this registry");
+		}
+		_vals[_numVals] = 0;
+		_nameToIndex[name] = _numVals;
+		return &(_vals[_numVals++]);
+	}
+}
+
+////////////////////////////////////////////////

@@ -12,11 +12,14 @@ class ValuesBank
     ValuesBank();
 
     bool isConst(crealp);
+    bool isChangingVar(crealp);
 
     crealp getConstant(double val);
+    realp getChanging(const string &name);
 
   private:
     ConstsSet _constDoubles;
+    ChangingValuesSet _changingDoubles;
 };
 
 ////////////////////////////////////////////////

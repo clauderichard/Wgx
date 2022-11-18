@@ -27,8 +27,8 @@ else()
     add_compile_definitions(
         SFML_SUPPORTED
         DEBUG_LOGS
-        WGX_ROOTDIR="/storage/emulated/0/Cpp/Wgx/"
-        WGX_WAVOUTPUTDIR="/storage/emulated/0/Music/WgxPlayground/"
+        WGX_ROOTDIR="/storage/emulated/0/Documents/Cxxdroid/Wgx/"
+        WGX_WAVOUTPUTDIR="/storage/emulated/0/Documents/WgxPlayground/"
         )
     find_package(SFML COMPONENTS system network audio REQUIRED)
     target_link_libraries(Wgx sfml-system sfml-network sfml-audio)

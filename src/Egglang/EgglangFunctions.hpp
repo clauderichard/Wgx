@@ -4,6 +4,7 @@
 #include "EggForkerSpecies.hpp"
 #include "Wave/ISynthesizer.hpp"
 #include "Parsing/CharFunctions.hpp"
+#include "Jurassic/ValuesBank.hpp"
 #include <sstream>
 using namespace std;
 
@@ -73,6 +74,58 @@ Event gEventSetIsStart(Event &ev)
 	g_isStartPresent = true;
 	return ev;
 }
+
+Event gEventGlobVarEval(string &name, double &val)
+{
+	Event ev;
+	ev._info._isStart = false;
+	ev._info._postLag = 0;
+	ev._info._duration = 0;
+	ev._info._varPtr = g_valuesBank.getChanging(name);
+	ev._info._assignValue = val;
+	ev._action = g_egglangGlobVarEvalAction;
+	return ev;
+}
+
+////////////////////////////////////////////////
+
+struct BezierCurveG
+{
+	vector<StaticBezierPoint> _pts;
+	vector<StaticBezierLinkType> _links;
+};
+
+StaticBezierPoint gBezierPtBuild(double &x, double &y)
+{
+	StaticBezierPoint pt;
+	pt._x = x;
+	pt._y = y;
+	return pt;
+}
+BezierCurveG gBezierCurveBuild(
+	vector<StaticBezierPoint> &pts,
+	vector<StaticBezierLinkType> &links)
+{
+	BezierCurveG curve;
+	curve._pts = pts;
+	curve._links = links;
+	return curve;
+}
+
+Event gEventGradientStart(string &name, BezierCurveG &curve)
+{
+	Event ev;
+	ev._info._isStart = false;
+	ev._info._postLag = 0;
+	ev._info._duration = 1;
+	ev._info._varPtr = g_valuesBank.getChanging(name);
+	ev._info._bezierPoints = curve._pts;
+	ev._info._bezierLinks = curve._links;
+	ev._action = g_egglangGradientStartAction;
+	return ev;
+}
+
+////////////////////////////////////////////////
 
 shared_ptr<IEgg> gEggFromEvent(Event &ev)
 {

@@ -135,13 +135,13 @@ Bass -> Echoes;
 	<
 		A *64
 		C*64
-		loop {EFGC EF^GA+ EGA+C+ A+C+E+vE+}*4_6
+		{EFGC EF^GA+ EGA+C+ A+C+E+vE+}*4_6
 	>
 	
 	@Bass
-	loop
+	
 	{
 		#a8 aa2 a3 a10 aa2 a3 a2
 		a24 aa2 a3 a2
-	} /8
+	} /8 x16
 >

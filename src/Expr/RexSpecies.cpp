@@ -23,6 +23,21 @@ crealp RexConst::processImpl(RexProcessContext &prog, Rex self)
 
 ////////////////////////////////////////////////
 
+RexGlobalVar::RexGlobalVar(const string &name)
+  : _name(name)
+{
+    _resultPlaceholder = g_valuesBank.getChanging(name);
+}
+
+RexGlobalVar::~RexGlobalVar() {}
+
+crealp RexGlobalVar::processImpl(RexProcessContext &prog, Rex self)
+{
+    return _resultPlaceholder;
+}
+
+////////////////////////////////////////////////
+
 RexVarName::RexVarName(const string &name)
     : _name(name) {}
     

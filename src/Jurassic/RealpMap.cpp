@@ -1,5 +1,6 @@
 
 #include "RealpMap.hpp"
+#include "ValuesBank.hpp"
 #include <iostream>
 #include <stdexcept>
 using namespace std;
@@ -35,6 +36,10 @@ void RealpMap::flagAsChanging(crealp x)
 
 bool RealpMap::isChanging(crealp x)
 {
+	if (g_valuesBank.isChangingVar(x))
+	{
+		return true;
+	}
 	if(_changingValues.find(x) != _changingValues.end())
 	{
 		return true;

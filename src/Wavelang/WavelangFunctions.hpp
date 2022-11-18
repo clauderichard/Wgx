@@ -37,6 +37,11 @@ Rex rexVarFromName(string &name)
 	return Rex::getNamedVar(name);
 }
 
+Rex rexGlobVarFromName(string &name)
+{
+	return Rex::getGlobNamedVar(name);
+}
+
 ////////////////////////////////////////////////
 // Bezier
 
@@ -143,6 +148,11 @@ Rex wPhaseRex(Rex &freq)
 {
 	return wRexTrex_helper(new TrexPhase(
 		freq.getResultPlaceholder()), {freq});
+}
+Rex wPhaseTRex(Rex &time)
+{
+	return wRexTrex_helper(new TrexPhaseT(
+		time.getResultPlaceholder()), {time});
 }
 Rex wDelayRex(Rex &delay, Rex &inp)
 {

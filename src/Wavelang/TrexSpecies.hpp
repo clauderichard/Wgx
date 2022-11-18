@@ -104,6 +104,57 @@ class TrexPhase : public ITrex
 
 ////////////////////////////////////////////////
 
+class TrexPhaseT : public ITrex
+{
+  public:
+	TrexPhaseT(
+		crealp time)
+		: _time(time),
+		  _timeToSubtract(0) {}
+	~TrexPhaseT() {}
+
+	void eval()
+	{
+		_result = *_time - _timeToSubtract;
+		while (_result >= 1)
+		{
+			_result -= 1;
+			_timeToSubtract += 1;
+		}
+	}
+
+	ITrex *copy()
+	{
+		return new TrexPhaseT(_time);
+	}
+
+	void reset()
+	{
+		_result = 0;
+	}
+
+	TrexArgList getArgs()
+	{
+		return TrexArgList{&_time};
+	}
+
+	bool introducesChange() const
+	{
+		return true;
+	}
+
+	void print(CrealpNamer &n) const
+	{
+		cout << "phaseT " << n[_time];
+	}
+
+  private:
+	crealp _time;
+	double _timeToSubtract;
+};
+
+////////////////////////////////////////////////
+
 class TrexFunc1 : public ITrex
 {
   public:

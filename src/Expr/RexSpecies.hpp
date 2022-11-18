@@ -13,13 +13,27 @@ using namespace std;
 class RexConst : public IRexImpl
 {
   public:
-	RexConst(double val);
+	  RexConst(double val);
     virtual ~RexConst();
 
     crealp processImpl(RexProcessContext &prog, Rex self);
     
   private:
     double _val;
+};
+
+////////////////////////////////////////////////
+
+class RexGlobalVar : public IRexImpl
+{
+  public:
+	  RexGlobalVar(const string &name);
+    virtual ~RexGlobalVar();
+
+    crealp processImpl(RexProcessContext &prog, Rex self);
+    
+  private:
+    string _name;
 };
 
 ////////////////////////////////////////////////

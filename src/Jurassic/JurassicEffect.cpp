@@ -37,7 +37,7 @@ void JurassicEffect::Validate()
 	{
 		for(auto arg : trex->getArgs())
 		{
-			if (validArgs.find(*arg) == validArgs.end() && !g_valuesBank.isConst(*arg))
+			if (validArgs.find(*arg) == validArgs.end() && !g_valuesBank.isConst(*arg) && !g_valuesBank.isChangingVar(*arg))
 			{
 				for(auto x : Rex::g_inputVars)
 				{

@@ -3,6 +3,9 @@
 
 #include "IVoice.hpp"
 #include "IEffect.hpp"
+#include "Jurassic/Realp.hpp"
+#include "StaticBezierSpec.hpp"
+#include <vector>
 #include <memory>
 using namespace std;
 
@@ -16,6 +19,10 @@ class ISynthesizer : public IWaveSampler
     virtual void connectEffectToEffect(size_t inEffectIndex, size_t outEffectIndex) = 0;
     virtual void initialize() = 0;
     virtual void waveOn(size_t instrumentIndex, size_t numSamples, std::initializer_list<double> params) = 0;
+    virtual void startGradientProcess(realp varPtr,
+        const vector<StaticBezierPoint> &pts,
+		    const vector<StaticBezierLinkType> &bs,
+        double timeSpeedupFactor) = 0;
     virtual void genSample() = 0;
     ////////////////////////////////////////////////
 

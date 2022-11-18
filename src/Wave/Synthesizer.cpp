@@ -1,5 +1,6 @@
 #include "Synthesizer.hpp"
 #include "Common/All.hpp"
+#include "Jurassic/ValuesBank.hpp"
 using namespace std;
 
 ////////////////////////////////////////////////
@@ -39,7 +40,10 @@ PlayingVoiceInfo::PlayingVoiceInfo()
 Synthesizer::Synthesizer()
     : _playingWorkers(CAPACITY_PLAYINGVOICES_PER_SYNTHESIZER),
       _effects(CAPACITY_EFFECTS_PER_SYNTHESIZER),
-      _outputs(CAPACITY_OUTPUTS_PER_SYNTHESIZER)
+      _outputs(CAPACITY_OUTPUTS_PER_SYNTHESIZER),
+      _songTimeSampleCounter(0),
+      _songTimePtr(g_valuesBank.getChanging(KEYWORD_GLOBVAR_BEGINSTRING "songtime")),
+      _gradientProcesses(CAPACITY_GRADIENT_PROCESSES)
 {
 }
 
@@ -109,8 +113,33 @@ void Synthesizer::waveOn(size_t instrumentIndex, size_t numSamples, std::initial
     }
 }
 
+void Synthesizer::startGradientProcess(
+    realp varPtr,
+    const vector<StaticBezierPoint> &pts,
+    const vector<StaticBezierLinkType> &bs,
+    double timeSpeedupFactor)
+{
+    shared_ptr<IRealFunctionOfTime> func(new BezierFunctionOfTime(pts, bs));
+    auto w = _gradientProcesses.grabWorker();
+    w.get().init(varPtr, func, timeSpeedupFactor);
+}
+
 void Synthesizer::genSample()
 {
+    _songTimeSampleCounter++;
+    *_songTimePtr = ((double)_songTimeSampleCounter) / WGX_SAMPLESPERSECOND;
+    
+    FASTFOR_WORKERS_WORKING(_gradientProcesses,p)
+    {
+        try
+        {
+            p->processNext();
+        }
+        catch(bool)
+        {
+            RELEASE_WORKER_INFASTFOR(_gradientProcesses,p)
+        }
+    }
     FASTFOR_WORKERS_WORKING(_playingWorkers,p)
     {
         try

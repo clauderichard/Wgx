@@ -42,7 +42,7 @@ void JurassicVoice::Validate()
 	{
 		for(auto arg : trex->getArgs())
 		{
-			if (validArgs.find(*arg) == validArgs.end() && !g_valuesBank.isConst(*arg))
+			if (validArgs.find(*arg) == validArgs.end() && !g_valuesBank.isConst(*arg) && !g_valuesBank.isChangingVar(*arg))
 			{
 				CRASH("JurassicVoice not valid! arg bad");
 			}

@@ -1,4 +1,5 @@
 #include "CharFunctions.hpp"
+#include "Common/Keywords.hpp"
 
 bool charIsDigit(char c)
 {
@@ -22,6 +23,11 @@ bool charIsAlphanumeric(char c)
 		(c >= 'A' && c <= 'Z') ||
 		(c >= '0' && c <= '9');
 }
+bool charIsGlobVarNameBegin(char c)
+{
+	return c == KEYWORD_GLOBVAR_BEGINCHAR;
+}
+
 
 double readReal(const string &s)
 {

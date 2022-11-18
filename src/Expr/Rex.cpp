@@ -80,6 +80,10 @@ Rex Rex::getNamedVar(const string &name)
     }
     return g_namedVars[name];
 }
+Rex Rex::getGlobNamedVar(const string &name)
+{
+    return Rex(new RexGlobalVar(name));
+}
 crealp Rex::getNewResultPlaceholder()
 {
     if (g_resultPlaceholdersCount >= 2048)

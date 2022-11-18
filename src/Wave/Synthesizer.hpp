@@ -7,6 +7,8 @@
 #include "Common/Crash.hpp"
 #include "Util/Workforce.hpp"
 #include "Util/FastArray.hpp"
+#include "Jurassic/Realp.hpp"
+#include "GradientsProcessor.hpp"
 #include <vector>
 using namespace std;
 
@@ -65,6 +67,10 @@ class Synthesizer : public ISynthesizer
     void initialize();
     void waveOn(size_t instrumentIndex, size_t numSamples, std::initializer_list<double> params);
     void genSample();
+    void startGradientProcess(realp varPtr,
+        const vector<StaticBezierPoint> &pts,
+		    const vector<StaticBezierLinkType> &bs,
+        double timeSpeedupFactor);
     ////////////////////////////////////////////////
 
     size_t addInstrument(shared_ptr<IVoice> voice);
@@ -77,6 +83,11 @@ class Synthesizer : public ISynthesizer
     Workforce<PlayingVoiceInfo> _playingWorkers;
     FastArray<EffectInfo> _effects;
 	  Workforce<IWaveSampler *> _outputs;
+    size_t _songTimeSampleCounter;
+    realp _songTimePtr;
+
+    //GradientsProcessor _gradientsProcessor;
+    Workforce<GradientProcess> _gradientProcesses;
 };
 
 ////////////////////////////////////////////////
